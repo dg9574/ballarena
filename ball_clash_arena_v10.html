@@ -183,7 +183,7 @@
   </div>
 </div>
 
-<div id="selectScreen class="screen hidden">
+<div id="selectScreen" class="screen hidden">
   <div class="panel">
     <div class="row space">
       <div>
@@ -1255,7 +1255,7 @@ function useSuper(f,g){
   } else if(id==='ninja'){
     f.recovery=.75;f.superLock=.65;const aa=angleTo(f,enemy);g.telegraphs.push(new Telegraph('line',f,{ang:aa,length:420,width:48,life:.42,color:'#66d6ff'}));setTimeout(()=>{if(game===g&&f.alive){startDash(f,g,aa,1750,.42,27,150,52,880,'#66d6ff',true);for(let i=0;i<40;i++)g.particles.push(new Particle(f.x,f.y,rand(-420,420),rand(-420,420),.38,'#66d6ff',rand(2,5),'spark'));sfx('parry',1);}},420);
   } else if(id==='brute'){
-    f.status.berserk=4.25; f.hp=clamp(f.hp+1.5,0,f.maxHp); g.texts.push(new FloatText(f.x,f.y-f.r-18,'BERSERK',c)); for(let i=0;i<70;i++)g.particles.push(new Particle(f.x,f.y,rand(-260,260),rand(-260,260),.7,c,rand(3,8),'spark'));
+    f.status.berserk=4.25; f.hp=clamp(f.hp+2.5,0,f.maxHp); g.texts.push(new FloatText(f.x,f.y-f.r-18,'BERSERK',c)); for(let i=0;i<70;i++)g.particles.push(new Particle(f.x,f.y,rand(-260,260),rand(-260,260),.7,c,rand(3,8),'spark'));
   } else if(id==='slayer'){
     f.status.hinokami=8.0; f.status.afterburn=4.0; g.texts.push(new FloatText(f.x,f.y-f.r-18,'HINOKAMI', '#ff6a2a')); for(let i=0;i<70;i++)g.particles.push(new Particle(f.x,f.y,rand(-280,280),rand(-280,280),.65,i%2?'#ff6a2a':'#3ddcff',rand(3,8),'spark'));
   } else if(id==='rapier'){
@@ -1519,7 +1519,7 @@ function applyHit(att,def,dmg,knock,g,h){
     if(att.status.hinokami>0) dmg*=1.28;
   }
   def.hp -= dmg;
-  if(att.status && att.status.berserk>0) att.hp=clamp(att.hp+Math.min(0.55,dmg*.018),0,att.maxHp);
+  if(att.status && att.status.berserk>0) att.hp=clamp(att.hp+Math.min(0.75,dmg*.024),0,att.maxHp);
   def.flash=.16; sfx(h.heavy?'boom':'hit', h.heavy?1:.75); def.stun = Math.max(def.stun, h.heavy?.16:.07);
   def.vx += dirx/l * knock; def.vy += diry/l * knock;
   att.super=clamp(att.super+dmg*(h.heavy?1.15:.82),0,100); def.super=clamp(def.super+dmg*.38,0,100);
