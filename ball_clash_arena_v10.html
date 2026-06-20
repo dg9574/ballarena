@@ -228,6 +228,7 @@
     </div>
   </div>
   <button id="pauseBtn" class="pauseBtn secondary">Pause</button>
+  <button id="leaveGameBtn" class="pauseBtn secondary" style="top:142px">Menu</button>
   <div class="hint">A/D move · W/Space jump · Mouse aim · LMB attack · RMB/Shift parry · Q/E ability · R super</div>
 </div>
 
@@ -1783,6 +1784,38 @@ document.querySelectorAll('.touchButtons button').forEach(btn=>{
 });
 
 
+
+function startFight(){
+  closeOnlineSocket();
+  const pool = CHARS.filter(c => c.id !== selectedPlayer);
+  const cpuId = selectedCPU || pool[Math.floor(Math.random()*pool.length)].id;
+  resize();
+  pointer.x = innerWidth * .5;
+  pointer.y = innerHeight * .5;
+  game = new Game(selectedPlayer, cpuId, {});
+  game.last = performance.now();
+  showScreen('game');
+}
+function quickFight(){
+  selectedPlayer = CHARS[Math.floor(Math.random()*CHARS.length)].id;
+  selectedCPU = null;
+  startFight();
+}
+function togglePause(){
+  if(!game || game.state !== 'fight') return;
+  game.paused = !game.paused;
+  if(ui.stateTxt) ui.stateTxt.textContent = game.paused ? 'PAUSED' : 'FIGHT';
+}
+function exitToMainMenu(){
+  closeOnlineSocket();
+  game = null;
+  selectedCPU = null;
+  pickOpponent = false;
+  if(ui.randomOpponentBtn) ui.randomOpponentBtn.textContent = 'Opponent: Random';
+  updateCardSelection();
+  showScreen('menu');
+}
+
 // Optional online rooms. Server manages lobby state; host simulates match and sends correction snapshots.
 const net={ws:null,room:'',role:null,id:null,remoteInput:null,ready:false,char:'stasis',players:[],send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify({...o,room:this.room}));}};
 function defaultWsUrl(){
@@ -1862,9 +1895,10 @@ document.getElementById('quickBtn').onclick=quickFight;
 document.getElementById('startBtn').onclick=startFight;
 ui.randomOpponentBtn.onclick=()=>{ if(selectedCPU){selectedCPU=null;ui.randomOpponentBtn.textContent='Opponent: Random';} else {pickOpponent=true;ui.randomOpponentBtn.textContent='Click Opponent Card';} updateCardSelection(); };
 document.getElementById('pauseBtn').onclick=togglePause;
+document.getElementById('leaveGameBtn').onclick=exitToMainMenu;
 document.getElementById('rematchBtn').onclick=()=>{if(game){const p=game.player.char.id,c=game.cpu.char.id;game=new Game(p,c);showScreen('game');}};
 document.getElementById('selectAgainBtn').onclick=()=>{showScreen('select');};
-document.getElementById('menuBtn').onclick=()=>{showScreen('menu');};
+document.getElementById('menuBtn').onclick=exitToMainMenu;
 
 let lastLoopError = 0;
 function loop(now){
@@ -1902,6 +1936,7 @@ function drawAttract(ctx){
   }
 }
 requestAnimationFrame(loop);
+try{ history.replaceState({bca:true},'',location.href); history.pushState({bca:true},'',location.href); addEventListener('popstate',()=>{ exitToMainMenu(); try{history.pushState({bca:true},'',location.href);}catch(_){} }); }catch(_){}
 if((new URL(location.href)).searchParams.get('room')) openOnlineMenu(); else showScreen('menu');
 
 </script>
