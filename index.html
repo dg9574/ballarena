@@ -66,8 +66,29 @@
   .touchButtons{position:absolute;right:12px;bottom:164px;display:grid;grid-template-columns:repeat(3,58px);gap:8px;pointer-events:auto;}
   .touchButtons button{padding:0;width:58px;height:48px;border-radius:16px;font-size:12px;box-shadow:0 4px 0 rgba(0,0,0,.3);}
   .onlineBox{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
-  .onlineBox input{width:100%;padding:13px 14px;border-radius:13px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.24);color:var(--text);font:inherit;}
+  .onlineBox input,.onlineBox select,.copyInput{width:100%;padding:13px 14px;border-radius:13px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.24);color:var(--text);font:inherit;outline:none;}
+  .onlineBox input:focus,.copyInput:focus{border-color:var(--accent);box-shadow:0 0 18px rgba(115,247,255,.16);}
   .statusPill{display:inline-block;padding:7px 10px;border:1px solid rgba(115,247,255,.24);border-radius:999px;background:rgba(0,0,0,.22);font-size:12px;color:#cfe8ff;}
+  .lobbyShell{display:grid;grid-template-columns:minmax(260px,360px) 1fr;gap:16px;margin-top:14px;}
+  .lobbyPanel{border:1px solid rgba(255,255,255,.13);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.028));padding:14px;}
+  .lobbyPanel h3{margin:0 0 10px;font-size:17px;letter-spacing:.04em;text-transform:uppercase;}
+  .onlineStep{display:none;}
+  .onlineStep.active{display:block;}
+  .roomCodeBig{font-size:34px;font-weight:1000;letter-spacing:.13em;color:#fff;text-shadow:0 0 18px rgba(115,247,255,.42);}
+  .playerSlot{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:11px;margin:9px 0;background:rgba(0,0,0,.17);}
+  .playerBadge{display:flex;gap:10px;align-items:center;min-width:0;}
+  .playerMeta{min-width:0;}
+  .playerName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;}
+  .readyLamp{font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;background:rgba(255,79,125,.18);color:#ffb3c3;border:1px solid rgba(255,79,125,.28);}
+  .readyLamp.ready{background:rgba(116,255,174,.15);color:#aaffc9;border-color:rgba(116,255,174,.38);}
+  .onlineCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;max-height:42vh;overflow:auto;padding-right:4px;}
+  .onlineCards .card{min-height:134px;padding:10px;}
+  .onlineCards .card h3{font-size:15px;margin-bottom:4px;}
+  .onlineCards .small{font-size:11px;}
+  .lobbyTopline{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+  .noticeBox{border:1px solid rgba(255,209,92,.24);background:rgba(255,209,92,.08);border-radius:14px;padding:10px;color:#ffe8a3;font-size:12px;line-height:1.35;}
+  .disabledBtn{filter:grayscale(.7) brightness(.65);pointer-events:none;}
+  @media (pointer:coarse), (max-width:800px){.lobbyShell{grid-template-columns:1fr}.onlineBox{grid-template-columns:1fr}.onlineCards{max-height:36vh}.roomCodeBig{font-size:26px}.playerName{max-width:130px}}
   @media (pointer:coarse), (max-width:800px){#mobileControls{display:block}.hint{display:none}.hudTop{top:8px;left:8px;right:8px;grid-template-columns:1fr 84px 1fr;gap:6px}.fighterHUD{padding:7px}.timerBox{min-width:84px;font-size:13px}.coolBox{width:28px;height:20px}.pauseBtn{top:78px;right:10px}.cards{grid-template-columns:repeat(auto-fit,minmax(148px,1fr));}.card{min-height:158px}}
 </style>
 </head>
@@ -88,34 +109,81 @@
 </div>
 
 <div id="onlineScreen" class="screen hidden">
-  <div class="panel" style="max-width:880px">
+  <div class="panel" style="max-width:1180px">
     <div class="row space">
       <div>
-        <h2>Online Rooms Beta</h2>
-        <p>This mode connects to the hosted WebSocket room server. On Render, the server field auto-fills to this site's secure WebSocket URL.</p>
+        <h2>Multiplayer Lobby</h2>
+        <p>Create a room, invite a friend, choose fighters, and ready up. Host simulates the match; the server relays room data and inputs.</p>
       </div>
       <button id="onlineBackBtn" class="secondary">Back</button>
     </div>
-    <div class="onlineBox">
-      <div>
-        <p class="small">Server address</p>
-        <input id="serverUrl" value="" />
-      </div>
-      <div>
-        <p class="small">Room code</p>
-        <input id="roomCode" value="arena" maxlength="24" />
+
+    <div id="onlineSetupStep" class="onlineStep active">
+      <div class="lobbyShell">
+        <div class="lobbyPanel">
+          <h3>Player</h3>
+          <div class="onlineBox" style="grid-template-columns:1fr">
+            <div>
+              <p class="small">Username</p>
+              <input id="userName" value="" maxlength="18" placeholder="Your name" />
+            </div>
+            <div>
+              <p class="small">Server address</p>
+              <input id="serverUrl" value="" />
+            </div>
+            <div>
+              <p class="small">Room code</p>
+              <input id="roomCode" value="" maxlength="24" placeholder="ABC123" />
+            </div>
+          </div>
+          <div class="row">
+            <button id="createRoomBtn">Create Room</button>
+            <button id="joinRoomBtn" class="secondary">Join Room</button>
+            <button id="randomRoomBtn" class="secondary">Random Code</button>
+          </div>
+          <p style="margin-top:12px"><span id="onlineStatus" class="statusPill">Not connected</span></p>
+          <div class="noticeBox">Tip: after Render deploys, share the invite link from the lobby. Both players should use the same server region, ideally Frankfurt for Europe.</div>
+        </div>
+        <div class="lobbyPanel">
+          <h3>Choose Fighter</h3>
+          <div id="onlineCharGrid" class="onlineCards"></div>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <button id="connectBtn">Connect / Join Room</button>
-      <button id="onlineCharBtn" class="secondary">Fighter: Stasis</button>
-      <span id="onlineStatus" class="statusPill">Not connected</span>
+
+    <div id="onlineLobbyStep" class="onlineStep">
+      <div class="lobbyTopline">
+        <div>
+          <div class="small">Room code</div>
+          <div id="lobbyRoomCode" class="roomCodeBig">------</div>
+        </div>
+        <div class="row">
+          <button id="copyInviteBtn" class="secondary">Copy Invite Link</button>
+          <button id="leaveRoomBtn" class="danger">Leave Room</button>
+        </div>
+      </div>
+      <div class="onlineBox" style="grid-template-columns:1fr auto;margin-bottom:8px">
+        <input id="inviteLink" class="copyInput" readonly value="" />
+        <button id="copyRoomBtn" class="secondary">Copy Code</button>
+      </div>
+      <div class="lobbyShell">
+        <div class="lobbyPanel">
+          <h3>Players</h3>
+          <div id="playerSlots"></div>
+          <button id="readyBtn">Ready</button>
+          <p class="small" id="readyHint">Both players must be ready. You can change fighter before readying.</p>
+          <p><span id="lobbyStatus" class="statusPill">Waiting...</span></p>
+        </div>
+        <div class="lobbyPanel">
+          <h3>Fighter Select</h3>
+          <div id="lobbyCharGrid" class="onlineCards"></div>
+        </div>
+      </div>
     </div>
-    <p class="small">First player in the room becomes Host. Second player becomes Guest. Host is authoritative and sends correction snapshots so phone play stays usable.</p>
   </div>
 </div>
 
-<div id="selectScreen" class="screen hidden">
+<div id="selectScreen class="screen hidden">
   <div class="panel">
     <div class="row space">
       <div>
@@ -237,7 +305,10 @@ const ui = {
   resultTitle: document.getElementById('resultTitle'), resultText: document.getElementById('resultText'),
   charCards: document.getElementById('charCards'),
   randomOpponentBtn: document.getElementById('randomOpponentBtn'),
-  serverUrl: document.getElementById('serverUrl'), roomCode: document.getElementById('roomCode'), onlineStatus: document.getElementById('onlineStatus'), onlineCharBtn: document.getElementById('onlineCharBtn'),
+  onlineSetupStep: document.getElementById('onlineSetupStep'), onlineLobbyStep: document.getElementById('onlineLobbyStep'),
+  userName: document.getElementById('userName'), serverUrl: document.getElementById('serverUrl'), roomCode: document.getElementById('roomCode'), onlineStatus: document.getElementById('onlineStatus'),
+  onlineCharGrid: document.getElementById('onlineCharGrid'), lobbyCharGrid: document.getElementById('lobbyCharGrid'), lobbyRoomCode: document.getElementById('lobbyRoomCode'), inviteLink: document.getElementById('inviteLink'),
+  playerSlots: document.getElementById('playerSlots'), readyBtn: document.getElementById('readyBtn'), readyHint: document.getElementById('readyHint'), lobbyStatus: document.getElementById('lobbyStatus'),
 };
 
 const arena = {x:80, y:80, w:1000, h:620, floor:0};
@@ -345,6 +416,64 @@ function updateCardSelection(){
   });
 }
 makeCards();
+
+
+function onlineStep(name){
+  if(ui.onlineSetupStep) ui.onlineSetupStep.classList.toggle('active', name==='setup');
+  if(ui.onlineLobbyStep) ui.onlineLobbyStep.classList.toggle('active', name==='lobby');
+}
+function sanitizeName(v){return String(v||'Player').trim().slice(0,18).replace(/[<>]/g,'') || 'Player';}
+function makeRoomCode(){
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<6;i++) s+=alphabet[Math.floor(Math.random()*alphabet.length)];
+  return s;
+}
+function currentInviteLink(){
+  const url = new URL(location.href);
+  url.searchParams.set('room', (ui.roomCode && ui.roomCode.value.trim()) || net.room || 'arena');
+  return url.toString();
+}
+function setOnlineStatus(t){ if(ui.onlineStatus) ui.onlineStatus.textContent=t; if(ui.lobbyStatus) ui.lobbyStatus.textContent=t; }
+function selectOnlineChar(id){
+  selectedPlayer=id; net.char=id; net.ready=false;
+  updateOnlineCards();
+  if(net.ws && net.ws.readyState===1) net.send({type:'set_char',char:id});
+}
+function makeOnlineCardGrid(root){
+  if(!root) return;
+  root.innerHTML='';
+  for(const ch of CHARS){
+    const card=document.createElement('div'); card.className='card'; card.dataset.id=ch.id;
+    card.innerHTML=`<h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3><p class="small">${ch.a1} / ${ch.a2}</p><p class="small"><b>R:</b> ${ch.super}</p>`;
+    card.onclick=()=>selectOnlineChar(ch.id);
+    root.appendChild(card);
+  }
+}
+function updateOnlineCards(){
+  for(const root of [ui.onlineCharGrid, ui.lobbyCharGrid]){
+    if(!root) continue;
+    [...root.children].forEach(card=>card.classList.toggle('selected', card.dataset.id===selectedPlayer));
+  }
+  if(ui.readyBtn) ui.readyBtn.textContent = net.ready ? 'Unready' : 'Ready';
+}
+function renderPlayerSlots(players=[]){
+  if(!ui.playerSlots) return;
+  const order=['host','guest'];
+  ui.playerSlots.innerHTML='';
+  for(const role of order){
+    const p=players.find(x=>x.role===role);
+    const ch=p ? (CHAR_BY_ID[p.char] || CHAR_BY_ID.stasis) : null;
+    const div=document.createElement('div'); div.className='playerSlot';
+    div.innerHTML = p ? `<div class="playerBadge"><span class="dot" style="color:${ch.color};background:${ch.color}"></span><div class="playerMeta"><div class="playerName">${p.name||'Player'} ${p.id===net.id?'(You)':''}</div><div class="small">${role.toUpperCase()} · ${ch.name}</div></div></div><span class="readyLamp ${p.ready?'ready':''}">${p.ready?'READY':'NOT READY'}</span>` : `<div class="playerBadge"><span class="dot" style="color:#445070;background:#445070"></span><div class="playerMeta"><div class="playerName">Waiting for player</div><div class="small">${role.toUpperCase()}</div></div></div><span class="readyLamp">EMPTY</span>`;
+    ui.playerSlots.appendChild(div);
+  }
+}
+function openOnlineMenu(){
+  if(ui.serverUrl) ui.serverUrl.value = ui.serverUrl.value || defaultWsUrl();
+  if(ui.userName) ui.userName.value = localStorage.getItem('bcaName') || ('Player'+Math.floor(Math.random()*900+100));
+  if(ui.roomCode && !ui.roomCode.value) ui.roomCode.value = (new URL(location.href)).searchParams.get('room') || makeRoomCode();
+  makeOnlineCardGrid(ui.onlineCharGrid); makeOnlineCardGrid(ui.lobbyCharGrid); updateOnlineCards(); onlineStep('setup'); showScreen('online');
+}
 
 class Particle{
   constructor(x,y,vx,vy,life,color,size=3,type='dot'){
@@ -1643,43 +1772,65 @@ document.querySelectorAll('.touchButtons button').forEach(btn=>{
 });
 
 
-// Optional online rooms. The host simulates and sends correction snapshots; the room server only relays messages.
-const net={ws:null,room:'',role:null,remoteInput:null,send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify({...o,room:this.room}));}};
+// Optional online rooms. Server manages lobby state; host simulates match and sends correction snapshots.
+const net={ws:null,room:'',role:null,id:null,remoteInput:null,ready:false,char:'stasis',players:[],send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify({...o,room:this.room}));}};
 function defaultWsUrl(){
   if(location.protocol==='http:' || location.protocol==='https:'){
     return (location.protocol==='https:'?'wss://':'ws://') + location.host + '/ws';
   }
   return 'ws://localhost:8080/ws';
 }
-function onlineStatus(t){ui.onlineStatus.textContent=t;}
-if(ui.serverUrl) ui.serverUrl.value = defaultWsUrl();
-function connectOnline(){
-  const url=ui.serverUrl.value.trim() || defaultWsUrl(), room=ui.roomCode.value.trim()||'arena'; net.room=room; onlineStatus('Connecting...');
-  try{net.ws=new WebSocket(url);}catch(e){onlineStatus('Bad server URL');return;}
-  net.ws.onopen=()=>{onlineStatus('Connected. Joining '+room+'...');net.send({type:'join',char:selectedPlayer});};
-  net.ws.onclose=()=>onlineStatus('Disconnected');
-  net.ws.onerror=()=>onlineStatus('Connection error');
+function closeOnlineSocket(){
+  if(net.ws){ try{net.send({type:'leave'}); net.ws.close();}catch(_){ } }
+  net.ws=null; net.role=null; net.id=null; net.ready=false; net.players=[]; net.remoteInput=null;
+}
+function enterLobby(room){
+  if(ui.lobbyRoomCode) ui.lobbyRoomCode.textContent=room;
+  if(ui.inviteLink) ui.inviteLink.value=currentInviteLink();
+  onlineStep('lobby'); updateOnlineCards(); renderPlayerSlots(net.players);
+}
+function connectOnline(mode){
+  const url=(ui.serverUrl&&ui.serverUrl.value.trim()) || defaultWsUrl();
+  const room=((ui.roomCode&&ui.roomCode.value.trim()) || makeRoomCode()).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24) || makeRoomCode();
+  const name=sanitizeName(ui.userName&&ui.userName.value);
+  localStorage.setItem('bcaName', name);
+  if(ui.roomCode) ui.roomCode.value=room;
+  net.room=room; net.char=selectedPlayer; net.ready=false;
+  closeOnlineSocket(); setOnlineStatus('Connecting...');
+  try{net.ws=new WebSocket(url);}catch(e){setOnlineStatus('Bad server URL');return;}
+  net.ws.onopen=()=>{setOnlineStatus((mode==='create'?'Creating ':'Joining ')+room+'...');net.send({type:'join',name,char:selectedPlayer});};
+  net.ws.onclose=()=>{setOnlineStatus('Disconnected');};
+  net.ws.onerror=()=>setOnlineStatus('Connection error');
   net.ws.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}
-    if(m.type==='role'){net.role=m.role;onlineStatus('In room as '+m.role+'. Waiting for opponent...');}
-    if(m.type==='start'){net.role=m.role||net.role;onlineStatus('Match started as '+net.role);game=new Game(m.hostChar,m.guestChar,{onlineRole:net.role});showScreen('game');}
+    if(m.type==='role'){net.role=m.role;net.id=m.id;net.room=m.room||net.room;enterLobby(net.room);setOnlineStatus('In lobby as '+net.role+'.');}
+    if(m.type==='room_state'){net.players=m.players||[]; const me=net.players.find(p=>p.id===net.id); if(me){net.ready=!!me.ready; selectedPlayer=me.char||selectedPlayer;} renderPlayerSlots(net.players); updateOnlineCards(); setOnlineStatus(net.players.length<2?'Waiting for opponent...':'Choose fighter and ready up.');}
+    if(m.type==='start'){net.role=m.role||net.role;setOnlineStatus('Match started as '+net.role);game=new Game(m.hostChar,m.guestChar,{onlineRole:net.role});showScreen('game');}
     if(m.type==='input'){net.remoteInput=m.input;}
     if(m.type==='state'&&game&&net.role==='guest'){game.applyState(m.state);}
-    if(m.type==='full'){onlineStatus('Room full');}
+    if(m.type==='full'){setOnlineStatus('Room full. Try another room code.');}
+    if(m.type==='peer_left'){setOnlineStatus('Opponent left the room.');}
+    if(m.type==='error'){setOnlineStatus(m.message||'Server error');}
   };
 }
-
-function startFight(){
-  const cpuId = selectedCPU || CHARS.filter(c=>c.id!==selectedPlayer)[Math.floor(Math.random()*(CHARS.length-1))].id;
-  game = new Game(selectedPlayer,cpuId); showScreen('game');
+function toggleReadyOnline(){
+  if(!net.ws || net.ws.readyState!==1){setOnlineStatus('Connect to a room first.'); return;}
+  net.ready=!net.ready; net.send({type:'ready',ready:net.ready,char:selectedPlayer}); updateOnlineCards(); setOnlineStatus(net.ready?'Ready. Waiting for opponent...':'Not ready.');
 }
-function quickFight(){selectedPlayer=CHARS[Math.floor(Math.random()*CHARS.length)].id;selectedCPU=null;startFight();}
-function togglePause(){if(!game||game.state!=='fight')return;game.paused=!game.paused;ui.stateTxt.textContent=game.paused?'PAUSED':'FIGHT';}
+async function copyText(v){
+  try{await navigator.clipboard.writeText(v); setOnlineStatus('Copied.');}
+  catch(_){setOnlineStatus('Copy failed. Select and copy manually.');}
+}
 
 document.getElementById('playBtn').onclick=()=>{showScreen('select');};
-document.getElementById('onlineBtn').onclick=()=>{showScreen('online');ui.onlineCharBtn.textContent='Fighter: '+CHAR_BY_ID[selectedPlayer].name;};
-document.getElementById('onlineBackBtn').onclick=()=>showScreen('menu');
-document.getElementById('connectBtn').onclick=connectOnline;
-document.getElementById('onlineCharBtn').onclick=()=>{const i=(CHARS.findIndex(c=>c.id===selectedPlayer)+1)%CHARS.length;selectedPlayer=CHARS[i].id;ui.onlineCharBtn.textContent='Fighter: '+CHAR_BY_ID[selectedPlayer].name;};
+document.getElementById('onlineBtn').onclick=openOnlineMenu;
+document.getElementById('onlineBackBtn').onclick=()=>{closeOnlineSocket();showScreen('menu');};
+document.getElementById('createRoomBtn').onclick=()=>{if(ui.roomCode&&!ui.roomCode.value)ui.roomCode.value=makeRoomCode();connectOnline('create');};
+document.getElementById('joinRoomBtn').onclick=()=>connectOnline('join');
+document.getElementById('randomRoomBtn').onclick=()=>{if(ui.roomCode)ui.roomCode.value=makeRoomCode();if(ui.inviteLink)ui.inviteLink.value=currentInviteLink();};
+document.getElementById('readyBtn').onclick=toggleReadyOnline;
+document.getElementById('leaveRoomBtn').onclick=()=>{closeOnlineSocket();onlineStep('setup');setOnlineStatus('Left room.');};
+document.getElementById('copyInviteBtn').onclick=()=>copyText(currentInviteLink());
+document.getElementById('copyRoomBtn').onclick=()=>copyText((ui.roomCode&&ui.roomCode.value)||net.room||'');
 document.getElementById('quickBtn').onclick=quickFight;
 document.getElementById('startBtn').onclick=startFight;
 ui.randomOpponentBtn.onclick=()=>{ if(selectedCPU){selectedCPU=null;ui.randomOpponentBtn.textContent='Opponent: Random';} else {pickOpponent=true;ui.randomOpponentBtn.textContent='Click Opponent Card';} updateCardSelection(); };
@@ -1702,7 +1853,7 @@ function drawAttract(ctx){
   }
 }
 requestAnimationFrame(loop);
-showScreen('menu');
+if((new URL(location.href)).searchParams.get('room')) openOnlineMenu(); else showScreen('menu');
 
 </script>
 </body>

@@ -1,14 +1,14 @@
 # Ball Clash Arena
 
-Upload this folder to a GitHub repository, then deploy it on Render as a Node Web Service.
+Single-file HTML5 game packaged with a tiny built-in Node.js WebSocket lobby server for Render/GitHub deployment.
 
 ## Files
 
-- `index.html` - the game client
-- `ball_clash_arena_v10.html` - same game file kept with the project version name
-- `server.js` - tiny no-dependency Node.js HTTP + WebSocket room server
-- `package.json` - Render/Node start script
-- `render.yaml` - optional Render Blueprint using the Frankfurt region
+- `index.html` — game client, single-player, and multiplayer lobby UI
+- `ball_clash_arena_v10.html` — same game file kept for version backup
+- `server.js` — no-dependency Node.js HTTP/WebSocket room server
+- `package.json` — Render/Node start script
+- `render.yaml` — Render blueprint using the Frankfurt region
 
 ## Local test
 
@@ -22,25 +22,27 @@ Open:
 http://localhost:8080
 ```
 
-Online rooms use:
-
-```text
-ws://localhost:8080/ws
-```
-
 ## Render deploy
 
-1. Push this folder to GitHub.
-2. On Render, create a new Web Service from the repo.
-3. Region: Frankfurt.
-4. Build command: leave empty.
-5. Start command: `node server.js`.
-6. Open the Render URL.
+1. Upload this folder to a GitHub repo.
+2. Create a Render Web Service from the repo.
+3. Use Node environment.
+4. Region: Frankfurt.
+5. Start command:
 
-The game auto-fills the server field to:
-
-```text
-wss://YOUR-RENDER-APP.onrender.com/ws
+```bash
+node server.js
 ```
 
-Use the same room code with your friend.
+The game page will be available at your Render URL.
+
+## Multiplayer flow
+
+1. Open Multiplayer Lobby.
+2. Enter username.
+3. Create or join a room code.
+4. Copy invite link and send it to your friend.
+5. Both players choose fighters and press Ready.
+6. Match starts when both players are ready.
+
+The invite link includes `?room=ROOMCODE`, so opening it auto-fills the room and opens the multiplayer lobby.
