@@ -73,16 +73,23 @@ function safeName(name){
 function safeChar(char){
   return String(char || 'stasis').slice(0, 32).replace(/[^a-z0-9_-]/gi, '') || 'stasis';
 }
+function safeMode(mode){
+  mode = String(mode || 'duel').toLowerCase();
+  return mode === 'ffa' ? 'ffa' : 'duel';
+}
+function roleForIndex(i){ return i === 0 ? 'host' : ('p' + (i + 1)); }
 function getRoom(code){
   code = safeRoom(code);
   let room = rooms.get(code);
-  if(!room){ room = { code, clients: [], createdAt: Date.now(), started: false }; rooms.set(code, room); }
+  if(!room){ room = { code, clients: [], createdAt: Date.now(), started: false, mode: 'duel' }; rooms.set(code, room); }
   return room;
 }
 function roomState(room){
   return {
     type: 'room_state',
     room: room.code,
+    mode: room.mode || 'duel',
+    maxPlayers: room.mode === 'ffa' ? 6 : 2,
     players: room.clients.map(c => ({ id: c.id, role: c.role, name: c.name, char: c.char, ready: !!c.ready }))
   };
 }
@@ -92,13 +99,23 @@ function broadcast(room, obj, except=null){
 function broadcastState(room){ broadcast(room, roomState(room)); }
 function maybeStart(room){
   if(room.started) return;
-  if(room.clients.length !== 2) return;
+  const mode = room.mode || 'duel';
+  const minPlayers = 2;
+  const maxPlayers = mode === 'ffa' ? 6 : 2;
+  if(room.clients.length < minPlayers) return;
+  if(mode === 'duel' && room.clients.length !== 2) return;
+  if(room.clients.length > maxPlayers) return;
   if(!room.clients.every(c => c.ready)) return;
   room.started = true;
-  const host = room.clients.find(c => c.role === 'host');
-  const guest = room.clients.find(c => c.role === 'guest');
-  sendFrame(host.sock, { type: 'start', role: 'host', hostChar: host.char, guestChar: guest.char });
-  sendFrame(guest.sock, { type: 'start', role: 'guest', hostChar: host.char, guestChar: guest.char });
+  const players = room.clients.map(c => ({ id: c.id, role: c.role, name: c.name, char: c.char, ready: !!c.ready }));
+  if(mode === 'duel'){
+    const host = room.clients[0];
+    const guest = room.clients[1];
+    sendFrame(host.sock, { type: 'start', mode: 'duel', role: 'host', hostChar: host.char, guestChar: guest.char, players });
+    sendFrame(guest.sock, { type: 'start', mode: 'duel', role: 'guest', hostChar: host.char, guestChar: guest.char, players });
+  } else {
+    for(const c of room.clients) sendFrame(c.sock, { type: 'start', mode: 'ffa', role: c.role, players });
+  }
 }
 function removeClient(client){
   if(!client.room) return;
@@ -108,34 +125,41 @@ function removeClient(client){
   if(idx >= 0) room.clients.splice(idx, 1);
   broadcast(room, { type: 'peer_left' });
   room.started = false;
-  for(const c of room.clients){ c.ready = false; if(c.role !== 'host') c.role = 'host'; }
+  for(let i = 0; i < room.clients.length; i++){ const c = room.clients[i]; c.ready = false; c.role = roleForIndex(i); }
   if(room.clients.length === 0) rooms.delete(room.code);
   else broadcastState(room);
   client.room = null;
 }
 function joinRoom(client, msg){
   const room = getRoom(msg.room);
-  if(room.clients.length >= 2){ sendFrame(client.sock, { type: 'full' }); return; }
+  const requestedMode = safeMode(msg.mode);
+  if(room.clients.length === 0) room.mode = requestedMode;
+  const maxPlayers = room.mode === 'ffa' ? 6 : 2;
+  if(room.clients.length >= maxPlayers){ sendFrame(client.sock, { type: 'full', maxPlayers, mode: room.mode }); return; }
   client.room = room.code;
   client.name = safeName(msg.name);
   client.char = safeChar(msg.char);
   client.ready = false;
-  client.role = room.clients.length === 0 ? 'host' : 'guest';
+  client.role = roleForIndex(room.clients.length);
   room.clients.push(client);
-  sendFrame(client.sock, { type: 'role', role: client.role, id: client.id, room: room.code });
+  sendFrame(client.sock, { type: 'role', role: client.role, id: client.id, room: room.code, mode: room.mode, maxPlayers });
   broadcastState(room);
 }
 function relay(client, msg){
   if(!client.room) return;
   const room = rooms.get(client.room);
   if(!room) return;
-  broadcast(room, msg, client);
+  broadcast(room, { ...msg, from: client.id }, client);
 }
 function handleClientMessage(client, msg){
   if(msg.type === 'join'){ joinRoom(client, msg); return; }
   if(msg.type === 'leave'){ removeClient(client); return; }
   if(!client.room) return;
   const room = rooms.get(client.room); if(!room) return;
+  if(msg.type === 'set_mode'){
+    if(room.clients[0] === client && !room.started){ room.mode = safeMode(msg.mode); room.clients = room.clients.slice(0, room.mode === 'ffa' ? 6 : 2); for(let i=0;i<room.clients.length;i++){room.clients[i].role = roleForIndex(i); room.clients[i].ready=false;} broadcastState(room); }
+    return;
+  }
   if(msg.type === 'set_char'){
     client.char = safeChar(msg.char);
     client.ready = false;
