@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ball-clash-arena
+    env: node
+    plan: free
+    region: frankfurt
+    buildCommand: ""
+    startCommand: "node server.js"
+    autoDeploy: true
