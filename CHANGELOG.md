@@ -1,5 +1,31 @@
 # Changelog
 
+## Release UI overhaul - public-test polish
+
+### UI / UX
+
+- Replaced the layered hotfix styling with one cohesive dark neon arcade UI system across Main Menu, Single Player, Multiplayer, Tutorial, Settings, Credits/Controls, Character Select, lobby screens, and HUD.
+- Fully redesigned Character Select as an opaque full-screen app shell with a clear header, Back/Opponent/Start actions, large fighter cards, strong selected/opponent states, independent roster/details scrolling, and balanced desktop/mobile layouts.
+- Removed the giant background “FIGHTER SELECT” watermark and prevented gameplay canvas bleed-through on menu/select screens.
+- Updated fighter cards to show a large avatar/weapon silhouette, name, weapon and difficulty chips, short playstyle, HP/Speed/Jump/Reach bars, and Q/E/R move chips.
+- Rebuilt the selected fighter details panel with a large preview, theme, weapon, HP/reach metadata, Q/E/R ability descriptions, passive, strength, weakness, and difficulty.
+- Brought multiplayer setup/lobby fighter grids into the same polished fighter-card system used by Single Player.
+- Improved buttons, inputs, cards, tutorial sections, setting controls, status pills, room panels, player slots, and responsive spacing for desktop, laptop, tablet, and mobile.
+- Added keyboard focus handling for fighter cards and guarded localStorage access so UI smoke tests and local/embedded contexts do not fail on restricted storage.
+
+### HUD / accessibility
+
+- Improved HUD contrast and readability with stronger glass panels, larger HP bars, clear HP numbers, colored HP states, readable cooldown boxes, super meter styling, and less intrusive pause/menu buttons.
+- Reduced default camera shake to 25% and labeled conservative shake values in Settings.
+
+### Validation
+
+- Verified server JavaScript syntax with `node --check server.js`.
+- Verified extracted client JavaScript syntax with `node --check`.
+- Verified local server `/health` startup response.
+- Smoke-tested UI flows in Chromium/Playwright using loaded client HTML: Main Menu, Single Player Character Select, opponent-pick state, Multiplayer setup/fighter select, Settings, Tutorial, and in-game HUD.
+- Verified WebSocket room start flow for Multiplayer Duel and FFA with Node WebSocket clients.
+
 ## Hotfix: character select and projectile blocking
 
 ### UI / UX

@@ -119,6 +119,14 @@ Buttons: Jump, Attack, Parry, Q, E, R
 
 This build includes the release-ready UI flow, tutorial, settings, richer character selection, host-authoritative rooms, ping display, invite link support, disconnect recovery, capped VFX arrays, delayed speed ramp, improved parry/block/clash readability, and character rework tuning.
 
+UI notes for this release:
+
+- Character Select is now a full-screen, opaque arcade interface with independent roster/details scrolling, responsive fighter cards, selected/opponent states, and no accidental canvas bleed-through.
+- Single Player and Multiplayer use the same fighter-card visual language for names, avatars, weapon/difficulty chips, playstyle, and Q/E/R move chips.
+- Menus, Tutorial, Settings, Credits/Controls, lobby panels, buttons, inputs, and status pills share a dark glass/neon design system.
+- In-game HP bars use high-contrast green/yellow/red remaining-health gradients with clear HP numbers.
+- Camera shake defaults to 25% and is labeled as conservative in Settings; VFX, ping, sound, and touch controls remain configurable.
+
 Known limitations:
 
 - The multiplayer model prioritizes small friend-group matches over massive scaling.
