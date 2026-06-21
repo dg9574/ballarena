@@ -52,3 +52,14 @@
 - Preserved particle, beam, hitbox, and clone caps to avoid unbounded arrays.
 - Verified server and client JavaScript syntax with Node checks.
 - Verified local HTTP `/health` and multiplayer WebSocket ready/start/pong flow.
+
+## Hotfix 2 - Character select, sync, Samurai E, shake, HP visibility
+
+- Rebuilt single-player character select as an opaque fixed app layout with independent roster/details scrolling, mobile stacking, readable header buttons, and no canvas bleed-through.
+- Applied the same fighter-card readability pass to multiplayer setup/lobby character selection.
+- Fixed duel multiplayer input mapping so the host receives the guest input correctly instead of reading an empty remote input slot.
+- Changed duel online play to host-authoritative rendering for guests, with fighter/projectile/hitbox snapshots relayed from the host to prevent each client seeing different gameplay.
+- Added network serialization for projectile/hitbox visuals and Samurai Soul Return state.
+- Reworked Samurai E into a reliable recorded-path rewind: a clear return point is shown, a path is drawn, E can trigger early return, and automatic return occurs after the timer.
+- Reduced default camera shake from 75% to 30%, capped maximum shake, increased shake decay, and reduced applied shake amplitude.
+- Recolored and enlarged health bars with high-contrast HP text and dynamic green/yellow/red remaining-health colors.
