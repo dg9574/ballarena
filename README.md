@@ -18,6 +18,14 @@ ball-clash-arena-render/
 └── .gitignore
 ```
 
+
+## Latest gameplay additions
+
+- Single-player now has bot difficulty from **Easy** to **Master**. **Normal** preserves the previous CPU behavior.
+- **Viking** was rebalanced with lower health, lower damage/knockback, and Valhalla Rebirth can trigger only once per round.
+- **Archer** now uses stable non-spinning arrow projectiles and a smaller in-hand bow arrow.
+- Added **AI**, a digital prediction fighter with Predictive Dash, Data Lock, and System Override.
+
 ## Run locally
 
 Requires Node 18 or newer.

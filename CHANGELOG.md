@@ -1,5 +1,27 @@
 # Changelog
 
+## Viking balance, bot difficulty, and AI fighter update
+
+### Balance
+
+- Rebalanced **Viking** to be much less oppressive: lower HP, speed, jump, damage, reach, passive knockback, shield-rush power, and axe-smack damage.
+- Viking **Valhalla Rebirth** now triggers only once per round. After revival, R/Valhalla is marked spent and cannot revive him again.
+- Archer arrows no longer advance spin animation, and Archer's in-hand arrow/bow presentation is smaller and cleaner.
+
+### Single-player bots
+
+- Added bot difficulty selection in Single Player: **Easy**, **Normal**, **Hard**, **Expert**, and **Master**.
+- **Normal** intentionally keeps the previous bot timing/aim/action behavior as the baseline.
+- Easier and harder tiers scale thinking speed, aim error, action frequency, bravery, and parry reliability around that baseline.
+
+### New fighter
+
+- Added **AI**, a digital prediction fighter with:
+  - Basic neon glyph shots.
+  - Q: Predictive Dash toward the enemy's projected path.
+  - E: Data Lock slow plus homing code shards.
+  - R: System Override full-arena scan beams and adaptive pulse.
+
 ## Warp / Archer and death-sequence update
 
 ### Combat flow
