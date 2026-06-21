@@ -166,3 +166,8 @@ This build expands the roster and changes match endings so the final hit remains
 - **Warp**: portal trickster with double-cast Twin Portals that either fighter can use, a blue water-like Drift Blast, and a close-range Portal Loop super that throws the enemy through two facing portals for several seconds of cinematic damage.
 - **Archer**: ranged sharpshooter whose basic attack fires arrows. Q is a mouse-aimed grappling hook, E fires an explosive arrow, and R launches a barrage of arrows.
 
+
+### Latest balance hotfix
+- AI is fully playable in single-player and multiplayer character select.
+- Viking's Valhalla Rebirth can trigger only once per round, even if he builds super again after reviving.
+- Warp's Portal Loop ultimate now deals reduced damage while keeping the full cinematic portal animation.

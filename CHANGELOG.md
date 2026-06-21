@@ -165,3 +165,8 @@
 - Verified extracted client JavaScript syntax with `node --check`.
 - Verified local server `/health` startup response.
 - Smoke-tested client runtime in Chromium using loaded HTML: Magician start + ultimate effect, Viking lethal-damage rebirth, Brute E spin lock, and Axiom weapon-block bypass.
+
+## Fix patch - AI/Viking/Warp tuning
+- Fixed AI missing cooldown registration so selecting AI no longer breaks match startup or ability handling.
+- Made Viking Valhalla Rebirth a true once-per-round revive using a permanent per-fighter `valhallaUsed` flag instead of a decaying status timer.
+- Reduced Warp Portal Loop ultimate damage from lethal burst territory to a controlled multi-hit cinematic combo.

@@ -1157,7 +1157,7 @@ class Fighter{
     this.attackCd=0; this.recovery=0; this.attackDraw=0; this.attackAngle=0;
     this.a1Cd=0; this.a2Cd=0; this.superLock=0; this.parryCd=0; this.parryTime=0; this.blockTime=0; this.stun=0;
     this.status={slow:0, slowAmt:1, guard:0, honor:0, focus:0, afterburn:0, reality:0, freeze:0, silence:0, katanaMark:0, power:0, growth:0, kaioken:0, kaiokenCrash:0, berserk:0, hinokami:0, hammerAway:0, spinAxe:0, valhalla:0, valhallaSpent:0};
-    this.trail=[]; this.ai=new AIController(this); this.flash=0; this.combo=0; this.staffBig=0; this.samuraiStack=0; this.soulReturn=null; this.shadowClone=null; this.dash=null; this.grapple=null; this.portals=[]; this.portalCd=0; this.deathFx=null; this.bounceInput=0; this.lastBounce=0; this.passiveHitCd=0; this.weaponClashCd=0; this.spinAxeAngle=0; this.spinAxeTick=0; this.spinAxeClock=0;
+    this.trail=[]; this.ai=new AIController(this); this.flash=0; this.combo=0; this.staffBig=0; this.samuraiStack=0; this.soulReturn=null; this.shadowClone=null; this.dash=null; this.grapple=null; this.portals=[]; this.portalCd=0; this.deathFx=null; this.bounceInput=0; this.lastBounce=0; this.passiveHitCd=0; this.weaponClashCd=0; this.spinAxeAngle=0; this.spinAxeTick=0; this.spinAxeClock=0; this.valhallaUsed=false;
   }
   get alive(){return this.hp>0;}
   cooldownRatio(kind){
@@ -1178,7 +1178,7 @@ class Fighter{
     if(this.status.slow>0) slowMul *= this.status.slowAmt;
     localDt *= slowMul;
 
-    for(const k of Object.keys(this.status)) this.status[k]=Math.max(0,this.status[k]-dt);
+    for(const k of Object.keys(this.status)){ if(k==='valhallaSpent') continue; this.status[k]=Math.max(0,this.status[k]-dt); }
     // Normal super charging is back for the player and CPU. Combat still charges faster, but time alone now matters too.
     this.super = clamp(this.super + dt * (this.isPlayer ? 5.8 : 4.7) * (g.pace || 1), 0, 100);
     this.attackCd=Math.max(0,this.attackCd-dt); this.a1Cd=Math.max(0,this.a1Cd-dt); this.a2Cd=Math.max(0,this.a2Cd-dt);
@@ -1454,14 +1454,14 @@ function unpackSoulState(d){
   return {x:Number(d.x)||0,y:Number(d.y)||0,t:Number(d.t)||0,record:.055,returning:!!d.returning,path:(d.path||[]).map(p=>({x:Number(p.x)||0,y:Number(p.y)||0}))};
 }
 function packFighterState(o){
-  return {id:o.netId,char:o.char&&o.char.id,name:o.userName,x:o.x,y:o.y,vx:o.vx,vy:o.vy,hp:o.hp,super:o.super,aim:o.aim,face:o.face,alive:o.alive,freeze:o.status.freeze,slow:o.status.slow,guard:o.status.guard,spinAxe:o.status.spinAxe||0,valhalla:o.status.valhalla||0,valhallaSpent:o.status.valhallaSpent||0,portalCd:o.portalCd||0,grapple:o.grapple?{x:o.grapple.x,y:o.grapple.y,t:o.grapple.t}:null,deathFx:o.deathFx?{...o.deathFx}:null,parry:o.parryTime,block:o.blockTime,flash:o.flash,soul:packSoulState(o.soulReturn)};
+  return {id:o.netId,char:o.char&&o.char.id,name:o.userName,x:o.x,y:o.y,vx:o.vx,vy:o.vy,hp:o.hp,super:o.super,aim:o.aim,face:o.face,alive:o.alive,freeze:o.status.freeze,slow:o.status.slow,guard:o.status.guard,spinAxe:o.status.spinAxe||0,valhalla:o.status.valhalla||0,valhallaSpent:(o.valhallaUsed?9999:(o.status.valhallaSpent||0)),portalCd:o.portalCd||0,grapple:o.grapple?{x:o.grapple.x,y:o.grapple.y,t:o.grapple.t}:null,deathFx:o.deathFx?{...o.deathFx}:null,parry:o.parryTime,block:o.blockTime,flash:o.flash,soul:packSoulState(o.soulReturn)};
 }
 function applyFighterState(o,d){
   if(!o||!d)return;
   o.netId=d.id||o.netId; o.userName=d.name||o.userName;
   o.x=Number.isFinite(d.x)?d.x:o.x; o.y=Number.isFinite(d.y)?d.y:o.y; o.vx=Number.isFinite(d.vx)?d.vx:o.vx; o.vy=Number.isFinite(d.vy)?d.vy:o.vy;
   o.hp=Number.isFinite(d.hp)?d.hp:o.hp; o.super=Number.isFinite(d.super)?d.super:o.super; o.aim=Number.isFinite(d.aim)?d.aim:o.aim; o.face=Number.isFinite(d.face)?d.face:o.face;
-  o.status.freeze=d.freeze||0; o.status.slow=d.slow||0; o.status.guard=d.guard||0; o.status.spinAxe=d.spinAxe||0; o.status.valhalla=d.valhalla||0; o.status.valhallaSpent=d.valhallaSpent||0; o.portalCd=d.portalCd||0; o.grapple=d.grapple?{...d.grapple}:null; o.deathFx=d.deathFx?{...d.deathFx}:null; o.parryTime=d.parry||0; o.blockTime=d.block||0; o.flash=d.flash||0;
+  o.status.freeze=d.freeze||0; o.status.slow=d.slow||0; o.status.guard=d.guard||0; o.status.spinAxe=d.spinAxe||0; o.status.valhalla=d.valhalla||0; o.status.valhallaSpent=d.valhallaSpent||0; o.valhallaUsed=!!(d.valhallaSpent>0); o.portalCd=d.portalCd||0; o.grapple=d.grapple?{...d.grapple}:null; o.deathFx=d.deathFx?{...d.deathFx}:null; o.parryTime=d.parry||0; o.blockTime=d.block||0; o.flash=d.flash||0;
   o.soulReturn=unpackSoulState(d.soul);
 }
 function packProjectileState(p){return {owner:p.owner&&p.owner.netId,x:p.x,y:p.y,vx:p.vx,vy:p.vy,r:p.r,dmg:p.dmg,color:p.color,type:p.type,life:p.life,ang:p.ang,released:p.released,delay:p.delay,knifeTimer:p.knifeTimer,flightSpeed:p.flightSpeed,storedAim:p.storedAim,noWeaponBlock:!!p.noWeaponBlock,pierce:!!p.pierce};}
@@ -1846,7 +1846,7 @@ function abilityCooldown(f,slot){
   const id=f.char.id;
   const table={
     stasis:[5.0,3.1], monkey:[3.2,4.2], magia:[5.5,5.2], sword:[5.2,3.6], spear:[2.6,5.0], katana:[3.0,6.0], mach:[3.2,4.1], axiom:[5.0,5.0], samurai:[3.2,7.0], lance:[2.8,4.3], unarmed:[5.0,1.0], rapier:[3.2,3.8],
-    goku:[5.0,10.5], thunder:[5.2,5.4], ninja:[5.0,2.2], brute:[6.2,7.4], magician:[4.7,4.8], viking:[4.6,5.8], warp:[4.2,5.0], archer:[3.9,5.7], slayer:[4.2,5.0]
+    goku:[5.0,10.5], thunder:[5.2,5.4], ninja:[5.0,2.2], brute:[6.2,7.4], magician:[4.7,4.8], viking:[4.6,5.8], warp:[4.2,5.0], archer:[3.9,5.7], ai:[3.8,5.2], slayer:[4.2,5.0]
   };
   return table[id][slot==='a1'?0:1];
 }
@@ -1972,7 +1972,7 @@ function useAbility2(f,g){
   }
   else if(id==='warp'){ const sx=f.x+Math.cos(a)*58, sy=f.y+Math.sin(a)*58; const p=new Projectile(f,sx,sy,Math.cos(a)*760,Math.sin(a)*760,28,14,'#4ddfff','water');g.projectiles.push(p);waterBurst(sx,sy,a,g,26);g.texts.push(new FloatText(f.x,f.y-f.r-16,'BLUE DRIFT',c)); }
   else if(id==='archer'){ const sx=f.x+Math.cos(a)*52, sy=f.y+Math.sin(a)*52; const p=new Projectile(f,sx,sy,Math.cos(a)*790,Math.sin(a)*790,12,12,'#ff8c4a','bombarrow');g.projectiles.push(p);g.beams.push(new Beam(sx,sy,sx+Math.cos(a)*160,sy+Math.sin(a)*160,'#ffec99',.12,8));g.texts.push(new FloatText(f.x,f.y-f.r-16,'EXPLOSIVE ARROW',c));sfx('knife',.55); }
-  else if(id==='ai'){ f.recovery=.28; const target=getNearestEnemy(f,g); target.status.slow=.9; target.status.slowAmt=.55; g.texts.push(new FloatText(target.x,target.y-target.r-18,'DATA LOCK',c)); g.rings.push(new Ring(target.x,target.y,target.r+24,.5,c,5)); for(let i=0;i<4;i++){setTimeout(()=>{if(game===g&&f.alive&&target.alive){const aa=angleTo(f,target)+rand(-.18,.18);const p=new Projectile(f,f.x+Math.cos(aa)*62,f.y+Math.sin(aa)*62,Math.cos(aa)*760,Math.sin(aa)*760,12,6,c,'glyph');p.home=.08;p.speed=780;g.projectiles.push(p);}},i*115);} }
+  else if(id==='ai'){ f.recovery=.28; const target=getNearestEnemy(f,g); if(!target||target===f){return;} target.status.slow=.9; target.status.slowAmt=.55; g.texts.push(new FloatText(target.x,target.y-target.r-18,'DATA LOCK',c)); g.rings.push(new Ring(target.x,target.y,target.r+24,.5,c,5)); for(let i=0;i<4;i++){setTimeout(()=>{if(game===g&&f.alive&&target.alive){const aa=angleTo(f,target)+rand(-.18,.18);const p=new Projectile(f,f.x+Math.cos(aa)*62,f.y+Math.sin(aa)*62,Math.cos(aa)*760,Math.sin(aa)*760,12,6,c,'glyph');p.home=.08;p.speed=780;g.projectiles.push(p);}},i*115);} }
   else if(id==='magia'){ const px=f.x+Math.cos(a)*130, py=f.y+Math.sin(a)*90; g.zones.push(new Zone(px,py,54,4.0,c,'rune',f)); g.telegraphs.push(new Telegraph('circle',f,{x:px,y:py,r:56,life:.5,color:c})); }
   else if(id==='sword'){ const wp=new Projectile(f,f.x+Math.cos(a)*62,f.y+Math.sin(a)*62,Math.cos(a)*820,Math.sin(a)*820,38,14,c,'wind');g.projectiles.push(wp);windBurst(f.x+Math.cos(a)*95,f.y+Math.sin(a)*95,a,c,g,28); }
   else if(id==='spear'){ f.status.guard=1.6; f.blockTime=1.25; g.rings.push(new Ring(f.x,f.y,f.r+14,.35,c,4)); g.texts.push(new FloatText(f.x,f.y-f.r-16,'SHIELD',c)); }
@@ -2057,7 +2057,7 @@ function useSuper(f,g){
   } else if(id==='brute'){
     f.status.berserk=5.25; f.hp=clamp(f.hp+7.5,0,f.maxHp); g.texts.push(new FloatText(f.x,f.y-f.r-18,'BERSERK LIFESTEAL',c)); for(let i=0;i<82;i++)g.particles.push(new Particle(f.x,f.y,rand(-300,300),rand(-300,300),.75,c,rand(3,8),'spark'));
   } else if(id==='viking'){
-    if(f.status.valhallaSpent>0){g.texts.push(new FloatText(f.x,f.y-f.r-18,'VALHALLA SPENT',c));return;}
+    if(f.valhallaUsed || f.status.valhallaSpent>0){g.texts.push(new FloatText(f.x,f.y-f.r-18,'VALHALLA SPENT',c));return;}
     f.super=100; g.texts.push(new FloatText(f.x,f.y-f.r-18,'VALHALLA ARMED',c)); g.rings.push(new Ring(f.x,f.y,f.r+26,.5,f.char.color2,5));
   } else if(id==='slayer'){
     f.status.hinokami=8.0; f.status.afterburn=4.0; g.texts.push(new FloatText(f.x,f.y-f.r-18,'HINOKAMI', '#ff6a2a')); for(let i=0;i<70;i++)g.particles.push(new Particle(f.x,f.y,rand(-280,280),rand(-280,280),.65,i%2?'#ff6a2a':'#3ddcff',rand(3,8),'spark'));
@@ -2308,8 +2308,8 @@ function lightningDragon(x,y,color,g){ for(let i=0;i<18;i++){const a=rand(0,TAU)
 function drawTimeStopOverlay(ctx,g){ctx.save();ctx.globalCompositeOperation='difference';ctx.fillStyle='rgba(255,255,255,.62)';ctx.fillRect(0,0,innerWidth,innerHeight);ctx.restore();ctx.save();ctx.globalAlpha=.38;ctx.strokeStyle='#72e8ff';ctx.lineWidth=2;const cx=innerWidth/2,cy=innerHeight/2;for(let i=0;i<24;i++){const a=i*TAU/24+performance.now()/1500;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*80,cy+Math.sin(a)*80);ctx.lineTo(cx+Math.cos(a)*Math.max(innerWidth,innerHeight),cy+Math.sin(a)*Math.max(innerWidth,innerHeight));ctx.stroke();}ctx.font='900 46px system-ui';ctx.textAlign='center';ctx.fillStyle='rgba(214,251,255,.55)';ctx.fillText('TIME STOP',cx,cy-120);ctx.restore();}
 
 function tryVikingRebirth(def,g,att,hpBefore,dmg){
-  if(!def || !g || def.char?.id!=='viking' || hpBefore<=0 || def.hp>0 || def.super<100 || def.status.valhallaSpent>0) return false;
-  def.super=0; def.status.valhallaSpent=1;
+  if(!def || !g || def.char?.id!=='viking' || hpBefore<=0 || def.hp>0 || def.super<100 || def.valhallaUsed || def.status.valhallaSpent>0) return false;
+  def.super=0; def.valhallaUsed=true; def.status.valhallaSpent=9999;
   def.hp=Math.max(1,Math.ceil(def.maxHp*.5));
   def.status.valhalla=2.2; def.status.guard=1.05; def.blockTime=1.05; def.parryCd=0;
   const away=att?Math.atan2(def.y-att.y,def.x-att.x):def.aim;
@@ -2451,14 +2451,14 @@ function processPortals(g,dt){
 }
 function castWarpUltimate(f,g,enemy,a,c){
   if(!enemy||!enemy.alive||dist2(f.x,f.y,enemy.x,enemy.y)>185*185){f.super=55;g.texts.push(new FloatText(f.x,f.y-f.r-20,'TOO FAR',c));g.rings.push(new Ring(f.x,f.y,f.r+14,.24,c,3));return;}
-  f.recovery=3.6;f.superLock=3.75;enemy.status.freeze=3.55;enemy.vx*=.05;enemy.vy*=.05;
+  f.recovery=3.25;f.superLock=3.35;enemy.status.freeze=3.1;enemy.vx*=.05;enemy.vy*=.05;
   const cx=clamp((f.x+enemy.x)/2,arena.x+190,arena.x+arena.w-190), cy=clamp(enemy.y,arena.y+140,arena.floor-140);
   const p1={x:cx-150,y:cy,color:c}, p2={x:cx+150,y:cy,color:f.char.color2};
-  g.screenFx={type:'portalLoop',life:3.75,max:3.75,color:c,color2:f.char.color2,ownerId:f.netId||f.char.id}; g.slowMo=.65; g.shake=Math.min(SHAKE_CAP,g.shake+16);
-  g.zones.push(Object.assign(new Zone(p1.x,p1.y,62,3.7,c,'portal',f),{portalIndex:0,portalGroup:'ult-'+(f.netId||f.char.id)}));
-  g.zones.push(Object.assign(new Zone(p2.x,p2.y,62,3.7,f.char.color2,'portal',f),{portalIndex:1,portalGroup:'ult-'+(f.netId||f.char.id)}));
+  g.screenFx={type:'portalLoop',life:3.35,max:3.35,color:c,color2:f.char.color2,ownerId:f.netId||f.char.id}; g.slowMo=.65; g.shake=Math.min(SHAKE_CAP,g.shake+16);
+  g.zones.push(Object.assign(new Zone(p1.x,p1.y,62,3.3,c,'portal',f),{portalIndex:0,portalGroup:'ult-'+(f.netId||f.char.id)}));
+  g.zones.push(Object.assign(new Zone(p2.x,p2.y,62,3.3,f.char.color2,'portal',f),{portalIndex:1,portalGroup:'ult-'+(f.netId||f.char.id)}));
   g.texts.push(new FloatText(enemy.x,enemy.y-enemy.r-30,'PORTAL LOOP',c));
-  for(let i=0;i<18;i++)setTimeout(()=>{if(game!==g||!f.alive||!enemy||enemy.hp<=0||g.state==='over')return;const from=i%2?p2:p1,to=i%2?p1:p2;enemy.x=from.x;enemy.y=from.y+Math.sin(i*.7)*34;const aa=Math.atan2(to.y-enemy.y,to.x-enemy.x);enemy.vx=Math.cos(aa)*(1200+i*18);enemy.vy=Math.sin(aa)*(1200+i*18);g.beams.push(new Beam(from.x,from.y,to.x,to.y,i%2?f.char.color2:c,.16,24));g.rings.push(new Ring(from.x,from.y,55,.24,i%2?f.char.color2:c,5));applyHit(f,enemy,i%4===3?5.4:3.2,280,g,{x:enemy.x,y:enemy.y,color:i%2?f.char.color2:c,parryable:false,heavy:i%4===3,moveName:'Portal Loop'});},260+i*175);
+  for(let i=0;i<16;i++)setTimeout(()=>{if(game!==g||!f.alive||!enemy||enemy.hp<=0||g.state==='over')return;const from=i%2?p2:p1,to=i%2?p1:p2;enemy.x=from.x;enemy.y=from.y+Math.sin(i*.7)*34;const aa=Math.atan2(to.y-enemy.y,to.x-enemy.x);enemy.vx=Math.cos(aa)*(1080+i*12);enemy.vy=Math.sin(aa)*(1080+i*12);g.beams.push(new Beam(from.x,from.y,to.x,to.y,i%2?f.char.color2:c,.16,24));g.rings.push(new Ring(from.x,from.y,55,.24,i%2?f.char.color2:c,5));applyHit(f,enemy,i%4===3?2.9:1.7,210,g,{x:enemy.x,y:enemy.y,color:i%2?f.char.color2:c,parryable:false,heavy:i%4===3,moveName:'Portal Loop'});},260+i*180);
 }
 function startDeathBreakdown(f,g,att,h){
   if(!f||f.deathFx)return; f.hp=0; f.dash=null; f.grapple=null; f.status.freeze=0; f.status.guard=0; f.blockTime=0; f.parryTime=0;
@@ -2655,7 +2655,7 @@ function drawCharacterAura(ctx,f,g,layer){
     else if(id==='rapier'){ctx.strokeStyle=c;ctx.beginPath();ctx.arc(0,0,f.r+9,0,TAU);ctx.stroke();ctx.beginPath();ctx.moveTo(-f.r-13,0);ctx.lineTo(f.r+13,0);ctx.stroke();}
   }else{
     if(id==='stasis' && g.timeStop&&g.timeStop.owner===f){ctx.globalAlpha=.55;ctx.strokeStyle='#d6fbff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,f.r+24,0,TAU);ctx.stroke();}
-    if(id==='viking' && f.super>=100 && !(f.status.valhallaSpent>0)){ctx.globalAlpha=.86;ctx.strokeStyle=f.char.color;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,f.r+24,0,TAU);ctx.stroke();ctx.fillStyle='#fff7ed';ctx.font='1000 11px system-ui';ctx.textAlign='center';ctx.strokeStyle='rgba(0,0,0,.8)';ctx.lineWidth=4;ctx.strokeText('REBIRTH READY',0,-f.r-27);ctx.fillText('REBIRTH READY',0,-f.r-27);}
+    if(id==='viking' && f.super>=100 && !f.valhallaUsed && !(f.status.valhallaSpent>0)){ctx.globalAlpha=.86;ctx.strokeStyle=f.char.color;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,f.r+24,0,TAU);ctx.stroke();ctx.fillStyle='#fff7ed';ctx.font='1000 11px system-ui';ctx.textAlign='center';ctx.strokeStyle='rgba(0,0,0,.8)';ctx.lineWidth=4;ctx.strokeText('REBIRTH READY',0,-f.r-27);ctx.fillText('REBIRTH READY',0,-f.r-27);}
     if(id==='katana' && f.status.katanaMark>0){ctx.globalAlpha=.8;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,f.r+16,0,TAU);ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 13px system-ui';ctx.textAlign='center';ctx.fillText('5',0,-f.r-18);}
     if(id==='samurai' && f.soulReturn){const sr=f.soulReturn;ctx.globalAlpha=sr.returning?.88:.72;ctx.strokeStyle=c;ctx.lineWidth=4;ctx.setLineDash(sr.returning?[2,7]:[9,7]);ctx.beginPath();const path=sr.returning?(sr.returnPath||sr.path||[]):sr.path||[];for(let i=0;i<path.length;i++){const px=path[i].x-f.x,py=path[i].y-f.y;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();ctx.setLineDash([]);const ox=sr.x-f.x,oy=sr.y-f.y;ctx.globalAlpha=.95;ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ox,oy,31+Math.sin(performance.now()/90)*4,0,TAU);ctx.stroke();ctx.strokeStyle=c;ctx.lineWidth=5;ctx.beginPath();ctx.arc(ox,oy,22,0,TAU);ctx.stroke();ctx.fillStyle=c;ctx.font='1000 12px system-ui';ctx.textAlign='center';ctx.strokeStyle='rgba(0,0,0,.85)';ctx.lineWidth=4;const label=sr.returning?'REWIND':Math.ceil(sr.t)+'s RETURN';ctx.strokeText(label,ox,oy-38);ctx.fillText(label,ox,oy-38);}
   }
