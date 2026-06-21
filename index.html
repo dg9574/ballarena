@@ -34,6 +34,26 @@
   button.danger{background:linear-gradient(135deg,#ff4f7d,#ffc05e);}
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px;}
   .card{border:1px solid rgba(255,255,255,.13);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));padding:12px;cursor:pointer;position:relative;overflow:hidden;min-height:174px;}
+  .menuGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:18px;max-width:860px;}
+  .menuGrid button{min-height:58px;text-align:left;}
+  .pillRow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+  .pill{display:inline-block;padding:5px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#cde3ff;font-size:11px;font-weight:800;letter-spacing:.02em;}
+  .detailLayout{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:16px;}
+  .detailPanel{border:1px solid rgba(115,247,255,.20);border-radius:20px;background:rgba(0,0,0,.18);padding:14px;min-height:220px;}
+  .detailPanel h3{margin:0 0 8px;font-size:22px;}
+  .abilityGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px;}
+  .abilityBox{border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.055);padding:9px;font-size:12px;color:#d8e8ff;line-height:1.35;}
+  .abilityBox b{color:#fff;}
+  #showcaseCanvas{width:100%;height:220px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 50% 40%,rgba(115,247,255,.12),rgba(0,0,0,.22));display:block;}
+  .tutorialGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:14px;}
+  .tutorialCard{border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(255,255,255,.055);padding:12px;}
+  .tutorialCard h3{margin:0 0 6px;font-size:16px;}
+  .settingsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px;}
+  .settingRow{border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(255,255,255,.055);padding:12px;}
+  .settingRow label{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:900;}
+  .settingRow input[type=range]{width:150px;}
+  .modeBadge{display:inline-block;border:1px solid rgba(115,247,255,.24);border-radius:999px;padding:5px 9px;margin:3px 5px 3px 0;background:rgba(115,247,255,.08);font-size:12px;color:#d9fbff;}
+  #pingPill,#hudPingPill{display:inline-block;min-width:82px;text-align:center;}
   .card:hover,.card.selected{border-color:var(--accent);box-shadow:0 0 22px rgba(115,247,255,.25);}
   .card h3{margin:0 0 6px;font-size:18px;display:flex;align-items:center;gap:8px;}
   .dot{width:18px;height:18px;border-radius:50%;display:inline-block;box-shadow:0 0 15px currentColor;}
@@ -88,7 +108,7 @@
   .lobbyTopline{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
   .noticeBox{border:1px solid rgba(255,209,92,.24);background:rgba(255,209,92,.08);border-radius:14px;padding:10px;color:#ffe8a3;font-size:12px;line-height:1.35;}
   .disabledBtn{filter:grayscale(.7) brightness(.65);pointer-events:none;}
-  @media (pointer:coarse), (max-width:800px){.lobbyShell{grid-template-columns:1fr}.onlineBox{grid-template-columns:1fr}.onlineCards{max-height:36vh}.roomCodeBig{font-size:26px}.playerName{max-width:130px}}
+  @media (pointer:coarse), (max-width:800px){.lobbyShell{grid-template-columns:1fr}.onlineBox{grid-template-columns:1fr}.onlineCards{max-height:36vh}.roomCodeBig{font-size:26px}.playerName{max-width:130px}.detailLayout{grid-template-columns:1fr}.abilityGrid{grid-template-columns:1fr}.menuGrid{grid-template-columns:1fr}}
   @media (pointer:coarse), (max-width:800px){#mobileControls{display:block}.hint{display:none}.hudTop{top:8px;left:8px;right:8px;grid-template-columns:1fr 84px 1fr;gap:6px}.fighterHUD{padding:7px}.timerBox{min-width:84px;font-size:13px}.coolBox{width:28px;height:20px}.pauseBtn{top:78px;right:10px}.cards{grid-template-columns:repeat(auto-fit,minmax(148px,1fr));}.card{min-height:158px}}
 </style>
 </head>
@@ -98,13 +118,72 @@
 <div id="mainMenu" class="screen">
   <div class="panel">
     <h1>Ball Clash Arena</h1>
-    <p>Weaponized bouncing balls clash in a neon physics arena. Control the chaos: aim, jump, parry, combo, and land supers.</p>
-    <div class="row" style="margin-top:18px">
-      <button id="playBtn">Play</button>
-      <button id="quickBtn" class="secondary">Quick Random Match</button>
-      <button id="onlineBtn" class="secondary">Online Rooms Beta</button>
+    <p>Physics-based weapon balls clash in a neon arena. Bounce, aim, parry, block, clash weapons, combo abilities, and land cinematic supers.</p>
+    <div class="menuGrid">
+      <button id="playBtn">Play Single Player<br><span class="small">Pick fighter and CPU opponent</span></button>
+      <button id="onlineBtn" class="secondary">Multiplayer<br><span class="small">Create/join 1v1 or FFA rooms</span></button>
+      <button id="tutorialBtn" class="secondary">Tutorial<br><span class="small">Controls, parries, clashes, rooms</span></button>
+      <button id="settingsBtn" class="secondary">Settings<br><span class="small">Sound, VFX, shake, ping, touch</span></button>
+      <button id="creditsBtn" class="secondary">Credits / Controls<br><span class="small">Input map and project notes</span></button>
+      <button id="quickBtn" class="secondary">Quick Random Match<br><span class="small">Instant chaotic test fight</span></button>
     </div>
     <p class="small" style="margin-top:18px">Desktop: A/D or arrows move, W/Space/Up jump, mouse aim, left click attack, right click/Shift parry, Q/E abilities, R super. Mobile: use on-screen controls.</p>
+  </div>
+</div>
+
+<div id="tutorialScreen" class="screen hidden">
+  <div class="panel">
+    <div class="row space">
+      <div>
+        <h2>Tutorial</h2>
+        <p>Use this as a quick public-test manual. The game is intentionally physics-first: movement bends momentum instead of replacing it.</p>
+      </div>
+      <div class="row">
+        <button id="tutorialPracticeBtn">Practice Fight</button>
+        <button id="tutorialBackBtn" class="secondary">Back</button>
+      </div>
+    </div>
+    <div class="tutorialGrid">
+      <div class="tutorialCard"><h3>1. Move and bounce</h3><p class="small">A/D or arrows steer. W/Space jumps. Your best control comes from pressing movement near wall/floor impacts to redirect the next bounce.</p></div>
+      <div class="tutorialCard"><h3>2. Aim and attack</h3><p class="small">Mouse or right touch pad aims. Left-click / Atk creates an active weapon hit with bonus damage and priority. Melee weapons also have passive collision damage.</p></div>
+      <div class="tutorialCard"><h3>3. Parry and block</h3><p class="small">Right-click or Shift. Perfect timing gives recoil, sparks, hitstop, super meter, and a punish window. Late block reduces damage. Bad timing leaves recovery.</p></div>
+      <div class="tutorialCard"><h3>4. Weapon clashes</h3><p class="small">Melee weapons, hands, staffs, spears, axes, hammers, and some projectiles can collide. Clashes knock both fighters back and create black/white impact frames.</p></div>
+      <div class="tutorialCard"><h3>5. Abilities and supers</h3><p class="small">Q and E are character abilities. R spends a full super meter. Supers charge from time, movement, hits, parries, and combat pressure, but no longer instantly snowball.</p></div>
+      <div class="tutorialCard"><h3>6. Online rooms</h3><p class="small">Create or join a room, copy the invite link, choose 1v1 or Free For All, pick a fighter, then ready up. The host simulates the match for small Render-friendly play.</p></div>
+      <div class="tutorialCard"><h3>7. Mobile controls</h3><p class="small">Left stick steers, right pad aims, buttons trigger Jump, Attack, Parry, Q, E, and R. Lower VFX and shake in Settings on older phones.</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="settingsScreen" class="screen hidden">
+  <div class="panel" style="max-width:900px">
+    <div class="row space">
+      <div><h2>Settings</h2><p>These settings are stored locally in the browser and apply immediately.</p></div>
+      <button id="settingsBackBtn" class="secondary">Back</button>
+    </div>
+    <div class="settingsGrid">
+      <div class="settingRow"><label>Sound <input id="soundToggle" type="checkbox" checked></label><p class="small">Procedural WebAudio hit, dash, parry, and super sounds.</p></div>
+      <div class="settingRow"><label>Show ping <input id="showPingToggle" type="checkbox" checked></label><p class="small">Displays lobby/HUD connection quality in multiplayer.</p></div>
+      <div class="settingRow"><label>Mobile controls <input id="mobileToggle" type="checkbox" checked></label><p class="small">Show touch controls on mobile-sized or touch devices.</p></div>
+      <div class="settingRow"><label>VFX intensity <input id="vfxRange" type="range" min="0.35" max="1" step="0.05" value="0.85"></label><p class="small" id="vfxLabel">85%</p></div>
+      <div class="settingRow"><label>Camera shake <input id="shakeRange" type="range" min="0" max="1" step="0.05" value="0.75"></label><p class="small" id="shakeLabel">75%</p></div>
+      <div class="settingRow"><label>Touch sensitivity <input id="touchRange" type="range" min="0.65" max="1.45" step="0.05" value="1"></label><p class="small" id="touchLabel">100%</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="creditsScreen" class="screen hidden">
+  <div class="panel" style="max-width:860px">
+    <div class="row space">
+      <div><h2>Credits / Controls</h2><p>Ball Clash Arena is a self-contained HTML5 Canvas game with a small Node WebSocket room server.</p></div>
+      <button id="creditsBackBtn" class="secondary">Back</button>
+    </div>
+    <div class="tutorialGrid">
+      <div class="tutorialCard"><h3>Keyboard</h3><p class="small">Move: A/D or arrows. Jump: W/Space/Up. Attack: left mouse. Parry/block: right mouse or Shift. Q/E abilities. R super. Esc pause.</p></div>
+      <div class="tutorialCard"><h3>Game modes</h3><p class="small"><span class="modeBadge">Single Player</span><span class="modeBadge">Multiplayer 1v1</span><span class="modeBadge">Free For All</span></p></div>
+      <div class="tutorialCard"><h3>Hosting</h3><p class="small">Designed for GitHub + Render free/small services. No paid databases, asset CDNs, or native dependencies are required.</p></div>
+      <div class="tutorialCard"><h3>Known limitation</h3><p class="small">Online play is optimized for small friend groups. For best results, deploy Render in Frankfurt and keep players geographically close.</p></div>
+    </div>
   </div>
 </div>
 
@@ -136,6 +215,10 @@
               <input id="roomCode" value="" maxlength="24" placeholder="ABC123" />
             </div>
             <div>
+              <p class="small">Paste invite link</p>
+              <input id="invitePaste" value="" placeholder="https://.../?room=ABC123&mode=ffa" />
+            </div>
+            <div>
               <p class="small">Mode</p>
               <select id="roomMode">
                 <option value="duel">Duel 1v1</option>
@@ -165,6 +248,7 @@
           <div id="lobbyRoomCode" class="roomCodeBig">------</div>
         </div>
         <div class="row">
+          <span id="pingPill" class="statusPill">Ping --</span>
           <button id="copyInviteBtn" class="secondary">Copy Invite Link</button>
           <button id="leaveRoomBtn" class="danger">Leave Room</button>
         </div>
@@ -203,7 +287,10 @@
         <button id="startBtn">Start Fight</button>
       </div>
     </div>
-    <div id="charCards" class="cards"></div>
+    <div class="detailLayout">
+      <div id="charCards" class="cards"></div>
+      <div id="selectedDetails" class="detailPanel"></div>
+    </div>
   </div>
 </div>
 
@@ -227,7 +314,7 @@
       <div class="superOuter"><div id="pSuper" class="superInner"></div></div>
       <div id="pCools" class="cooldowns"></div>
     </div>
-    <div class="timerBox"><div id="timer">99</div><div id="stateTxt" class="small">FIGHT</div></div>
+    <div class="timerBox"><div id="timer">99</div><div id="stateTxt" class="small">FIGHT</div><div id="hudPingPill" class="small">Ping --</div></div>
     <div class="fighterHUD cpu">
       <div class="nameLine"><span id="cName">CPU</span><span id="cHpTxt">100</span></div>
       <div class="hpOuter"><div id="cHp" class="hpInner"></div></div>
@@ -304,6 +391,7 @@ const ui = {
   onlineScreen: document.getElementById('onlineScreen'),
   selectScreen: document.getElementById('selectScreen'),
   gameOver: document.getElementById('gameOver'),
+  tutorialScreen: document.getElementById('tutorialScreen'), settingsScreen: document.getElementById('settingsScreen'), creditsScreen: document.getElementById('creditsScreen'),
   hud: document.getElementById('hud'),
   pName: document.getElementById('pName'), cName: document.getElementById('cName'),
   pHp: document.getElementById('pHp'), cHp: document.getElementById('cHp'),
@@ -312,10 +400,10 @@ const ui = {
   pCools: document.getElementById('pCools'), cCools: document.getElementById('cCools'),
   timer: document.getElementById('timer'), stateTxt: document.getElementById('stateTxt'),
   resultTitle: document.getElementById('resultTitle'), resultText: document.getElementById('resultText'),
-  charCards: document.getElementById('charCards'),
+  charCards: document.getElementById('charCards'), selectedDetails: document.getElementById('selectedDetails'),
   randomOpponentBtn: document.getElementById('randomOpponentBtn'),
   onlineSetupStep: document.getElementById('onlineSetupStep'), onlineLobbyStep: document.getElementById('onlineLobbyStep'),
-  userName: document.getElementById('userName'), serverUrl: document.getElementById('serverUrl'), roomCode: document.getElementById('roomCode'), roomMode: document.getElementById('roomMode'), onlineStatus: document.getElementById('onlineStatus'),
+  userName: document.getElementById('userName'), serverUrl: document.getElementById('serverUrl'), roomCode: document.getElementById('roomCode'), invitePaste: document.getElementById('invitePaste'), roomMode: document.getElementById('roomMode'), onlineStatus: document.getElementById('onlineStatus'), pingPill: document.getElementById('pingPill'), hudPingPill: document.getElementById('hudPingPill'),
   onlineCharGrid: document.getElementById('onlineCharGrid'), lobbyCharGrid: document.getElementById('lobbyCharGrid'), lobbyRoomCode: document.getElementById('lobbyRoomCode'), inviteLink: document.getElementById('inviteLink'),
   playerSlots: document.getElementById('playerSlots'), readyBtn: document.getElementById('readyBtn'), readyHint: document.getElementById('readyHint'), lobbyStatus: document.getElementById('lobbyStatus'),
 };
@@ -353,7 +441,7 @@ const CHARS = [
   {id:'axiom', name:'Axiom', theme:'Gojo-inspired space fighter with Red push, Blue pull, and Hollow Purple blast.', color:'#9cff6a', color2:'#b277ff', hp:104, speed:.96, jump:.97, dmg:10, reach:94, cd:.50, radius:28, super:'Hollow Purple', a1:'Red', a2:'Blue', weak:'Long charge windows; can be interrupted or baited.', ai:{range:185, brave:.48, parry:.45}},
   {id:'samurai', name:'Samurai', theme:'Wind master inspired by Yone: dash slices, every third wind burst, soul return, and delayed cut damage.', color:'#ff8c4a', color2:'#d8fff4', hp:112, speed:1.02, jump:1.03, dmg:13, reach:95, cd:.48, radius:29, super:'Fate Sealer', a1:'Wind Step', a2:'Soul Return', weak:'Returns can be predicted; third-stack burst has timing tells.', ai:{range:118, brave:.60, parry:.55}},
   {id:'lance', name:'Lance', theme:'Joust-style fighter with extreme reach, shielded dash windups, and huge telegraphed charges.', color:'#5cb8ff', color2:'#fff05c', hp:110, speed:.96, jump:.96, dmg:13, reach:142, cd:.55, radius:29, super:'Grand Joust', a1:'Lance Poke', a2:'Joust Windup', weak:'Vulnerable up close and after missing.', ai:{range:182, brave:.60, parry:.36}},
-  {id:'unarmed', name:'Unarmed', theme:'Martial artist whose damage rises at low HP and whose passive momentum ramps over time.', color:'#b9ff7c', color2:'#ffffff', hp:112, speed:1.08, jump:1.10, dmg:10, reach:58, cd:.29, radius:28, super:'Spirit Rush', a1:'Power Strikes', a2:'Inner Growth', weak:'Very short range.', ai:{range:74, brave:.84, parry:.64}},
+  {id:'unarmed', name:'Unarmed', theme:'Martial artist whose damage rises at low HP and whose passive momentum ramps over time.', color:'#b9ff7c', color2:'#ffffff', hp:112, speed:1.08, jump:1.10, dmg:10, reach:58, cd:.29, radius:28, super:'Spirit Rush', a1:'Power Strikes', a2:'Passive Growth', weak:'Very short range.', ai:{range:74, brave:.84, parry:.64}},
   {id:'rapier', name:'Rapier', theme:'Elegant duelist with accurate pokes, lunge confirms, feint-step afterimages, and narrow checkmate thrust.', color:'#ff93df', color2:'#fff5fd', hp:92, speed:1.13, jump:1.05, dmg:12, reach:114, cd:.37, radius:26, super:'Checkmate Thrust', a1:'Lunge', a2:'Feint Step', weak:'Requires accuracy; narrow hitboxes whiff often.', ai:{range:140, brave:.56, parry:.52}},
   {id:'goku', name:'Monkey', theme:'Saiyan-inspired martial ball with blue gi colors, instant movement, red Kaioken aura, and a charged beam super.', color:'#ff8d24', color2:'#2c86ff', hp:104, speed:1.16, jump:1.10, dmg:11, reach:62, cd:.31, radius:28, super:'Kamehameha', a1:'Instant Transmission', a2:'Kaioken', weak:'Kaioken hurts afterward; beam has startup and can be dodged.', ai:{range:96, brave:.76, parry:.46}},
   {id:'thunder', name:'Thundergod', theme:'Storm hammer bruiser with flying hammer, lightning slams, and map-wide storm strikes.', color:'#8bd8ff', color2:'#f7f9ff', hp:116, speed:.98, jump:1.02, dmg:14, reach:86, cd:.48, radius:29, super:'Lightning Storm', a1:'Hammer Slam', a2:'Boomerang Hammer', weak:'No melee hammer pressure while the hammer is away.', ai:{range:125, brave:.62, parry:.48}},
@@ -362,10 +450,62 @@ const CHARS = [
   {id:'slayer', name:'Slayer', theme:'Water-and-flame swordsman with black blade, water wheel, surface slash, and Hinokami rush mode.', color:'#3ddcff', color2:'#101014', hp:100, speed:1.15, jump:1.08, dmg:12, reach:92, cd:.36, radius:27, super:'Hinokami Kagura', a1:'Water Wheel', a2:'Surface Slash', weak:'Needs clean sword contact and timing.', ai:{range:116, brave:.68, parry:.50}},
 ]
 const CHAR_BY_ID = Object.fromEntries(CHARS.map(c=>[c.id,c]));
+const CHAR_DETAILS = {
+  stasis:{weapon:'Delayed knives',style:'Setup zoner / parry punisher',passive:'Knives hold briefly before firing in their stored direction.',strength:'Controls space and punishes predictable approaches.',difficulty:'Hard'},
+  monkey:{weapon:'Full staff collider',style:'Agile mid-range trickster',passive:'Staff grows during vault pressure.',strength:'Great reach, bounce pressure, and clone confusion.',difficulty:'Medium'},
+  magia:{weapon:'Homing heart orbs',style:'Fragile trap caster',passive:'Projectiles can be blocked by weapon timing.',strength:'Safe pressure, rune traps, and nova control.',difficulty:'Medium'},
+  sword:{weapon:'Long sword',style:'Precision burst duelist',passive:'Slashes reward aimed timing over guaranteed hits.',strength:'Excellent burst and dramatic Perfect Cut lines.',difficulty:'Hard'},
+  spear:{weapon:'Spear',style:'Spacing specialist',passive:'Strong tip range, awkward close angles.',strength:'Reliable reach and defensive shield windows.',difficulty:'Medium'},
+  katana:{weapon:'Katana',style:'Dash assassin',passive:'Five-Cut mark enables follow-up slices.',strength:'Fast engage, high tempo, stylish storm super.',difficulty:'Hard'},
+  mach:{weapon:'Velocity hands',style:'Momentum brawler',passive:'Impact damage scales with speed.',strength:'Huge arena movement and punishing overspeed hits.',difficulty:'Hard'},
+  axiom:{weapon:'Red/Blue/Purple spheres',style:'Gravity burst mage',passive:'Space manipulation displaces enemies.',strength:'Powerful setup, push/pull control, Hollow Purple.',difficulty:'Medium'},
+  samurai:{weapon:'Wind soul blade',style:'Yone-inspired rewind fighter',passive:'Q stacks into a wind burst.',strength:'Soul Return records path then rewinds safely.',difficulty:'Hard'},
+  lance:{weapon:'Shielded lance',style:'Joust charger',passive:'Long hitboxes, weak if missed up close.',strength:'Telegraphed but devastating charge lanes.',difficulty:'Medium'},
+  unarmed:{weapon:'Hands',style:'Scaling short-range fighter',passive:'E is passive growth: stronger/faster over time.',strength:'High reward if he gets into danger range.',difficulty:'Medium'},
+  rapier:{weapon:'Rapier',style:'Precision lunge duelist',passive:'Narrow hitboxes have strong priority if aimed.',strength:'Feint and checkmate thrust punish mistakes.',difficulty:'Hard'},
+  goku:{weapon:'Hands + beam',style:'Teleport rushdown',passive:'Kaioken boosts then applies a toll.',strength:'Instant Transmission and satisfying Kamehameha.',difficulty:'Medium'},
+  thunder:{weapon:'Hammer',style:'Bruiser / storm controller',passive:'Cannot melee while hammer is thrown.',strength:'Slam, boomerang, and readable lightning zones.',difficulty:'Medium'},
+  ninja:{weapon:'Shurikens',style:'Clone mind-game assassin',passive:'Clone has 1 HP and vanishes on hit/contact.',strength:'Swap tricks and fast Chidori finish.',difficulty:'Hard'},
+  brute:{weapon:'Huge axe',style:'Tanky clash bully',passive:'Axe size makes blocking and clashes easier.',strength:'Cyclone pressure and moderate berserker lifesteal.',difficulty:'Easy'},
+  slayer:{weapon:'Black sword',style:'Water/flame sword rushdown',passive:'Hinokami boosts attack, agility, and control.',strength:'Water wheel, surface slash momentum, flame mode.',difficulty:'Medium'}
+};
+function charDetail(ch){return CHAR_DETAILS[ch.id]||{weapon:'Signature weapon',style:'Balanced fighter',passive:'No passive listed.',strength:'Flexible fundamentals.',difficulty:'Medium'};}
+
+const DEFAULT_SETTINGS = {sound:true, vfx:.85, shake:.75, showPing:true, mobileControls:true, touchSensitivity:1};
+let SETTINGS = {...DEFAULT_SETTINGS};
+function loadSettings(){
+  try{SETTINGS={...DEFAULT_SETTINGS,...JSON.parse(localStorage.getItem('bcaSettings')||'{}')};}catch(_){SETTINGS={...DEFAULT_SETTINGS};}
+  SETTINGS.vfx=clamp(Number(SETTINGS.vfx)||DEFAULT_SETTINGS.vfx,.35,1);
+  SETTINGS.shake=clamp(Number(SETTINGS.shake)||0,0,1);
+  SETTINGS.touchSensitivity=clamp(Number(SETTINGS.touchSensitivity)||1,.65,1.45);
+  SETTINGS.sound=!!SETTINGS.sound; SETTINGS.showPing=!!SETTINGS.showPing; SETTINGS.mobileControls=!!SETTINGS.mobileControls;
+}
+function saveSettings(){try{localStorage.setItem('bcaSettings',JSON.stringify(SETTINGS));}catch(_){}}
+function bindSettings(){
+  loadSettings();
+  const sound=document.getElementById('soundToggle'), ping=document.getElementById('showPingToggle'), mobileCtl=document.getElementById('mobileToggle'), vfx=document.getElementById('vfxRange'), shake=document.getElementById('shakeRange'), touch=document.getElementById('touchRange');
+  const apply=()=>{
+    if(sound)sound.checked=SETTINGS.sound; if(ping)ping.checked=SETTINGS.showPing; if(mobileCtl)mobileCtl.checked=SETTINGS.mobileControls;
+    if(vfx)vfx.value=SETTINGS.vfx; if(shake)shake.value=SETTINGS.shake; if(touch)touch.value=SETTINGS.touchSensitivity;
+    const vfxLabel=document.getElementById('vfxLabel'), shakeLabel=document.getElementById('shakeLabel'), touchLabel=document.getElementById('touchLabel');
+    if(vfxLabel)vfxLabel.textContent=Math.round(SETTINGS.vfx*100)+'%'; if(shakeLabel)shakeLabel.textContent=Math.round(SETTINGS.shake*100)+'%'; if(touchLabel)touchLabel.textContent=Math.round(SETTINGS.touchSensitivity*100)+'%';
+    if(ui.pingPill)ui.pingPill.style.display=SETTINGS.showPing?'inline-block':'none'; if(ui.hudPingPill)ui.hudPingPill.style.display=SETTINGS.showPing?'block':'none';
+    const mc=document.getElementById('mobileControls'); if(mc)mc.style.visibility=SETTINGS.mobileControls?'visible':'hidden';
+    saveSettings();
+  };
+  if(sound)sound.onchange=()=>{SETTINGS.sound=sound.checked;apply();};
+  if(ping)ping.onchange=()=>{SETTINGS.showPing=ping.checked;apply();};
+  if(mobileCtl)mobileCtl.onchange=()=>{SETTINGS.mobileControls=mobileCtl.checked;apply();};
+  if(vfx)vfx.oninput=()=>{SETTINGS.vfx=Number(vfx.value);apply();};
+  if(shake)shake.oninput=()=>{SETTINGS.shake=Number(shake.value);apply();};
+  if(touch)touch.oninput=()=>{SETTINGS.touchSensitivity=Number(touch.value);apply();};
+  apply();
+}
 
 // Procedural WebAudio SFX: no external sound files.
 let audioCtx = null;
 function sfx(type, intensity=1){
+  if(!SETTINGS.sound) return;
   try{
     audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
     const now=audioCtx.currentTime, osc=audioCtx.createOscillator(), gain=audioCtx.createGain(), filter=audioCtx.createBiquadFilter();
@@ -385,7 +525,7 @@ let pickOpponent = false;
 function showScreen(name){
   // Hard-hide every screen with display styles as well as classes. This prevents
   // stale menu/lobby panels from sitting above the canvas during online starts.
-  const screens = {menu: ui.mainMenu, online: ui.onlineScreen, select: ui.selectScreen, over: ui.gameOver};
+  const screens = {menu: ui.mainMenu, online: ui.onlineScreen, select: ui.selectScreen, over: ui.gameOver, tutorial: ui.tutorialScreen, settings: ui.settingsScreen, credits: ui.creditsScreen};
   for(const [key, el] of Object.entries(screens)){
     if(!el) continue;
     const active = key === name;
@@ -401,6 +541,62 @@ function showScreen(name){
   canvas.style.visibility = 'visible';
 }
 
+function renderSelectedDetails(){
+  if(!ui.selectedDetails) return;
+  const ch=CHAR_BY_ID[selectedPlayer]||CHARS[0], d=charDetail(ch);
+  ui.selectedDetails.innerHTML=`
+    <h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span> ${ch.name}</h3>
+    <p class="small"><b>Theme:</b> ${ch.theme}</p>
+    <div class="pillRow"><span class="pill">Weapon: ${d.weapon}</span><span class="pill">Playstyle: ${d.style}</span><span class="pill">Difficulty: ${d.difficulty}</span></div>
+    <canvas id="showcaseCanvas" width="520" height="220"></canvas>
+    <div class="abilityGrid">
+      <div class="abilityBox"><b>Q · ${ch.a1}</b><br>${abilityCopy(ch.id,'q')}</div>
+      <div class="abilityBox"><b>E · ${ch.a2}</b><br>${abilityCopy(ch.id,'e')}</div>
+      <div class="abilityBox"><b>R · ${ch.super}</b><br>${abilityCopy(ch.id,'r')}</div>
+      <div class="abilityBox"><b>Passive</b><br>${d.passive}<br><br><b>Strength:</b> ${d.strength}<br><b>Weakness:</b> ${ch.weak}</div>
+    </div>`;
+  drawShowcase(ch);
+}
+function abilityCopy(id,slot){
+  const copy={
+    stasis:{q:'Creates a slow field for delayed knives and parry traps.',e:'Places three knives that hold, then fire in stored aim directions.',r:'Freezes time briefly and releases a limited knife barrage.'},
+    monkey:{q:'Vaults with an enlarged staff for safer full-staff collisions.',e:'Summons a 1 HP decoy that bounces like a player.',r:'Creates multiple fragile clones for pressure and confusion.'},
+    magia:{q:'Small self-heal with magical particles; use before being rushed.',e:'Rune trap freezes enemies who enter the marked circle.',r:'Telegraphed arcane nova burst with strong area control.'},
+    sword:{q:'Telegraphed focus slashes that can be parried on reaction.',e:'Wind cut projectile for spacing and chase pressure.',r:'Perfect Cut draws dramatic slice lines across the arena.'},
+    spear:{q:'Fast long thrust that rewards spacing.',e:'Shield block window with clear guard VFX.',r:'Long piercing charge with obvious lane telegraph.'},
+    katana:{q:'Dash slash moves first, then damages during active frames.',e:'Marks the next attack for five clear follow-up cuts.',r:'Iaido Storm freezes briefly then releases a fair burst slash.'},
+    mach:{q:'Aim Boost launches across the arena and damages on contact.',e:'Aftershock punishes enemies close to your landing zone.',r:'Sonic Break chains high-speed wall-to-wall dashes.'},
+    axiom:{q:'Red pushes, damages, and sends enemies into uncontrolled bounces.',e:'Blue pulls enemies toward a gravity sphere for combo setup.',r:'Red and Blue fuse into Hollow Purple after a readable charge.'},
+    samurai:{q:'Wind Step dashes; every third cast releases a wind burst.',e:'Soul Return records your path for five seconds, then rewinds.',r:'Fate Sealer telegraphs, cuts, and applies delayed soul damage.'},
+    lance:{q:'Long poke for safe range control.',e:'Shielded joust windup that moves and damages during dash.',r:'Grand Joust: stronger shielded charge with clear startup.'},
+    unarmed:{q:'Power Strikes temporarily improve close-range punch priority.',e:'Passive growth is always active; no manual E activation needed.',r:'Spirit Rush bounces a nearby enemy around walls with capped damage.'},
+    rapier:{q:'Lunge with narrow, high-priority active frames.',e:'Feint step creates evasive afterimages and parry tempo.',r:'Checkmate Thrust is narrow, powerful, and skill-shot based.'},
+    goku:{q:'Instant Transmission appears behind the enemy with particles.',e:'Kaioken doubles pressure briefly, then applies backlash.',r:'Kamehameha charges a blue-white beam with a readable lane.'},
+    thunder:{q:'Hammer Slam leaps into a telegraphed impact.',e:'Throws hammer out and back; melee is disabled while away.',r:'Lightning Storm marks strikes before damage.'},
+    ninja:{q:'Shadow clone looks almost real but has 1 HP.',e:'Swap with active clone for mixups.',r:'Chidori lightning dash: fast, readable, and punishable on miss.'},
+    brute:{q:'Axe Breaker is a slow, heavy cleave.',e:'Axe Cyclone orbits the axe around Brute for a fair duration.',r:'Berserker mode increases damage and modest lifesteal.'},
+    slayer:{q:'Water Wheel creates a circular water slash.',e:'Water Surface Slash gives strong forward momentum.',r:'Hinokami Kagura boosts attack/agility with flame aura.'}
+  };
+  return (copy[id]&&copy[id][slot])||'Signature move with cooldown and punishable recovery.';
+}
+function drawShowcase(ch){
+  const c=document.getElementById('showcaseCanvas'); if(!c) return; const g=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000;
+  g.clearRect(0,0,w,h); g.fillStyle='rgba(4,8,20,.72)'; g.fillRect(0,0,w,h);
+  for(let i=0;i<42;i++){g.fillStyle='rgba(115,247,255,.08)';g.fillRect((i*37+t*20)%w, (i*71)%h, 2, 2);}
+  const x=w*.38+Math.sin(t*1.7)*10, y=h*.54+Math.cos(t*1.3)*6;
+  g.save();g.translate(x,y);g.shadowColor=ch.color;g.shadowBlur=26;g.fillStyle=ch.color;g.beginPath();g.arc(0,0,31,0,TAU);g.fill();g.strokeStyle=ch.color2;g.lineWidth=5;g.stroke();
+  g.fillStyle='#06101d';g.font='900 18px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText(ch.name[0],0,1);
+  g.rotate(Math.sin(t)*.25);g.strokeStyle=ch.color2;g.lineWidth=8;g.lineCap='round';
+  const weaponLen=Math.max(60,Math.min(135,ch.reach));
+  if(['stasis','magia','axiom','ninja'].includes(ch.id)){for(let i=0;i<3;i++){const a=t+i*TAU/3;g.fillStyle=i%2?ch.color:ch.color2;g.beginPath();g.arc(Math.cos(a)*58,Math.sin(a)*34,8,0,TAU);g.fill();}}
+  else if(['unarmed','goku','mach'].includes(ch.id)){g.beginPath();g.arc(52,-15,16,0,TAU);g.stroke();g.beginPath();g.arc(54,18,16,0,TAU);g.stroke();}
+  else {g.beginPath();g.moveTo(16,0);g.lineTo(weaponLen,0);g.stroke(); if(['brute','thunder'].includes(ch.id)){g.lineWidth=18;g.beginPath();g.moveTo(weaponLen-16,-16);g.lineTo(weaponLen+20,16);g.stroke();} else if(ch.id==='lance'||ch.id==='spear'||ch.id==='rapier'){g.fillStyle=ch.color2;g.beginPath();g.moveTo(weaponLen+18,0);g.lineTo(weaponLen-7,-10);g.lineTo(weaponLen-4,10);g.closePath();g.fill();}}
+  g.restore();
+  g.strokeStyle=ch.color;g.lineWidth=3;g.globalAlpha=.75;g.beginPath();g.arc(w*.64,h*.52,52+12*Math.sin(t*3),-0.4,TAU*.82);g.stroke();g.globalAlpha=1;
+  g.fillStyle='#d8e8ff';g.font='800 14px system-ui';g.textAlign='left';g.fillText(ch.a1+'  ·  '+ch.a2,18,h-38);g.fillText('R: '+ch.super,18,h-18);
+}
+function tickShowcase(){if(ui.selectScreen && !ui.selectScreen.classList.contains('hidden')) drawShowcase(CHAR_BY_ID[selectedPlayer]||CHARS[0]); requestAnimationFrame(tickShowcase);}requestAnimationFrame(tickShowcase);
+
 function makeCards(){
   ui.charCards.innerHTML = '';
   for(const ch of CHARS){
@@ -409,16 +605,17 @@ function makeCards(){
     card.dataset.id = ch.id;
     card.innerHTML = `
       <h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3>
+      <div class="pillRow"><span class="pill">${charDetail(ch).weapon}</span><span class="pill">${charDetail(ch).difficulty}</span></div>
       <p class="small">${ch.theme}</p>
       <div class="miniStats">
         <div>HP<div class="barMini"><span style="width:${ch.hp/124*100}%"></span></div></div>
-        <div>Speed<div class="barMini"><span style="width:${ch.speed/1.28*100}%"></span></div></div>
-        <div>Jump<div class="barMini"><span style="width:${ch.jump/1.22*100}%"></span></div></div>
-        <div>Reach<div class="barMini"><span style="width:${ch.reach/138*100}%"></span></div></div>
+        <div>Speed<div class="barMini"><span style="width:${ch.speed/1.55*100}%"></span></div></div>
+        <div>Jump<div class="barMini"><span style="width:${ch.jump/1.25*100}%"></span></div></div>
+        <div>Reach<div class="barMini"><span style="width:${ch.reach/150*100}%"></span></div></div>
       </div>
-      <div class="small"><b>Ability:</b> ${ch.a1} / ${ch.a2}</div>
-      <div class="small"><b>Super:</b> ${ch.super}</div>
-      <div class="small"><b>Weakness:</b> ${ch.weak}</div>`;
+      <div class="small"><b>Q:</b> ${ch.a1}</div>
+      <div class="small"><b>E:</b> ${ch.a2}</div>
+      <div class="small"><b>R:</b> ${ch.super}</div>`;
     card.addEventListener('click',()=>{
       if(pickOpponent){ selectedCPU = ch.id; ui.randomOpponentBtn.textContent = 'Opponent: '+ch.name; pickOpponent = false; }
       else selectedPlayer = ch.id;
@@ -429,6 +626,7 @@ function makeCards(){
   updateCardSelection();
 }
 function updateCardSelection(){
+  renderSelectedDetails();
   [...ui.charCards.children].forEach(card=>{
     const id = card.dataset.id;
     card.classList.toggle('selected', id === selectedPlayer || id === selectedCPU);
@@ -465,7 +663,7 @@ function makeOnlineCardGrid(root){
   root.innerHTML='';
   for(const ch of CHARS){
     const card=document.createElement('div'); card.className='card'; card.dataset.id=ch.id;
-    card.innerHTML=`<h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3><p class="small">${ch.a1} / ${ch.a2}</p><p class="small"><b>R:</b> ${ch.super}</p>`;
+    card.innerHTML=`<h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3><p class="small"><b>Weapon:</b> ${charDetail(ch).weapon}</p><p class="small"><b>Q/E:</b> ${ch.a1} / ${ch.a2}</p><p class="small"><b>R:</b> ${ch.super}</p>`;
     card.onclick=()=>selectOnlineChar(ch.id);
     root.appendChild(card);
   }
@@ -1001,7 +1199,7 @@ class Game{
     for(const a of this.arcs) a.update(dt); this.arcs=this.arcs.filter(o=>o.life>0);
     for(const b of this.beams) b.update(dt); this.beams=this.beams.filter(o=>o.life>0);
     for(const c of this.clones) c.update(dt,this); this.clones=this.clones.filter(o=>o.alive);
-    if(this.particles.length>520)this.particles.splice(0,this.particles.length-520); if(this.beams.length>90)this.beams.splice(0,this.beams.length-90); if(this.hitboxes.length>130)this.hitboxes.splice(0,this.hitboxes.length-130);
+    {const cap=Math.max(140,Math.floor(520*SETTINGS.vfx)); if(this.particles.length>cap)this.particles.splice(0,this.particles.length-cap);} if(this.beams.length>90)this.beams.splice(0,this.beams.length-90); if(this.hitboxes.length>130)this.hitboxes.splice(0,this.hitboxes.length-130);
     this.clashCd=Math.max(0,this.clashCd-dt); this.passiveClashCd=Math.max(0,(this.passiveClashCd||0)-dt);
     this.shake = Number.isFinite(this.shake) ? clamp(Math.max(0,this.shake-dt*30),0,28) : 0;
   }
@@ -1041,7 +1239,7 @@ class Game{
   draw(){
     ctx.clearRect(0,0,innerWidth,innerHeight);
     this.shake = Number.isFinite(this.shake) ? clamp(this.shake,0,28) : 0;
-    const sx = (Math.random()*2-1)*this.shake, sy=(Math.random()*2-1)*this.shake;
+    const sx = (Math.random()*2-1)*this.shake*SETTINGS.shake, sy=(Math.random()*2-1)*this.shake*SETTINGS.shake;
     ctx.save();ctx.translate(sx,sy);
     drawArena(ctx,this);
     if(this.timeStop&&this.timeStop.life>0) drawTimeStopOverlay(ctx,this);
@@ -1067,7 +1265,7 @@ class Game{
     ui.pHpTxt.textContent=Math.ceil(Math.max(0,p.hp));ui.cHpTxt.textContent=Math.ceil(Math.max(0,c.hp));
     ui.timer.textContent=Math.ceil(this.time);
     updateCooldowns(ui.pCools,p); updateCooldowns(ui.cCools,c);
-    ui.stateTxt.textContent=this.paused?'PAUSED':(this.realityTimer>0?'REALITY SHIFT':'FIGHT');
+    ui.stateTxt.textContent=this.paused?'PAUSED':(this.realityTimer>0?'REALITY SHIFT':'FIGHT'); updatePingUI();
   }
   finish(winner,why){
     if(this.state==='over') return;
@@ -1120,7 +1318,7 @@ class FFAGame{
     for(const a of this.arcs) a.update(dt); this.arcs=this.arcs.filter(o=>o.life>0);
     for(const b of this.beams) b.update(dt); this.beams=this.beams.filter(o=>o.life>0);
     for(const c of this.clones) c.update(dt,this); this.clones=this.clones.filter(o=>o.alive);
-    if(this.particles.length>520)this.particles.splice(0,this.particles.length-520); if(this.beams.length>90)this.beams.splice(0,this.beams.length-90); if(this.hitboxes.length>160)this.hitboxes.splice(0,this.hitboxes.length-160);
+    {const cap=Math.max(140,Math.floor(520*SETTINGS.vfx)); if(this.particles.length>cap)this.particles.splice(0,this.particles.length-cap);} if(this.beams.length>90)this.beams.splice(0,this.beams.length-90); if(this.hitboxes.length>160)this.hitboxes.splice(0,this.hitboxes.length-160);
     this.clashCd=Math.max(0,this.clashCd-dt); this.passiveClashCd=Math.max(0,(this.passiveClashCd||0)-dt); this.shake=Number.isFinite(this.shake)?clamp(Math.max(0,this.shake-dt*30),0,28):0;
   }
   checkRuneZones(){
@@ -1158,11 +1356,11 @@ class FFAGame{
     if(Number.isFinite(st.time))this.time=st.time; this.player=this.fighters.find(f=>f.netId===this.localId)||this.player; this.cpu=getNearestEnemy(this.player,this)||this.cpu; this.updateUI();
   }
   draw(){
-    ctx.clearRect(0,0,innerWidth,innerHeight); this.shake=Number.isFinite(this.shake)?clamp(this.shake,0,28):0; const sx=(Math.random()*2-1)*this.shake, sy=(Math.random()*2-1)*this.shake; ctx.save();ctx.translate(sx,sy);
+    ctx.clearRect(0,0,innerWidth,innerHeight); this.shake=Number.isFinite(this.shake)?clamp(this.shake,0,28):0; const sx=(Math.random()*2-1)*this.shake*SETTINGS.shake, sy=(Math.random()*2-1)*this.shake*SETTINGS.shake; ctx.save();ctx.translate(sx,sy);
     drawArena(ctx,this); if(this.timeStop&&this.timeStop.life>0)drawTimeStopOverlay(ctx,this); for(const z of this.zones)z.draw(ctx); for(const t of this.telegraphs)t.draw(ctx); for(const p of this.projectiles)p.draw(ctx); for(const h of this.hitboxes)h.draw(ctx); for(const c of this.clones)c.draw(ctx); for(const f of this.fighters){f.draw(ctx,this); this.drawName(ctx,f);} for(const a of this.arcs)a.draw(ctx); for(const b of this.beams)b.draw(ctx); for(const r of this.rings)r.draw(ctx); for(const p of this.particles)p.draw(ctx); for(const t of this.texts)t.draw(ctx); if(this.impactFrame>0)drawImpactFrame(ctx,this); if(this.paused)drawPause(ctx); ctx.restore();
   }
   drawName(ctx,f){ctx.save();ctx.font='800 12px system-ui';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.fillStyle=f.netId===this.localId?'#ffffff':f.char.color2;const txt=(f.userName||f.char.name)+(f.hp<=0?' KO':'');ctx.strokeText(txt,f.x,f.y-f.r-14);ctx.fillText(txt,f.x,f.y-f.r-14);ctx.restore();}
-  updateUI(){const p=this.player,c=this.cpu||this.player;ui.pName.textContent=(p.userName||p.char.name);ui.cName.textContent=c===p?'FFA':(c.userName||c.char.name);ui.pHp.style.width=(Math.max(0,p.hp)/p.maxHp*100)+'%';ui.cHp.style.width=(Math.max(0,c.hp)/c.maxHp*100)+'%';ui.pSuper.style.width=clamp(p.super,0,100)+'%';ui.cSuper.style.width=clamp(c.super,0,100)+'%';ui.pHpTxt.textContent=Math.ceil(Math.max(0,p.hp));ui.cHpTxt.textContent=c===p?this.fighters.filter(f=>f.hp>0).length+' left':Math.ceil(Math.max(0,c.hp));ui.timer.textContent=Math.ceil(this.time);updateCooldowns(ui.pCools,p);updateCooldowns(ui.cCools,c);ui.stateTxt.textContent=this.paused?'PAUSED':'FFA';}
+  updateUI(){const p=this.player,c=this.cpu||this.player;ui.pName.textContent=(p.userName||p.char.name);ui.cName.textContent=c===p?'FFA':(c.userName||c.char.name);ui.pHp.style.width=(Math.max(0,p.hp)/p.maxHp*100)+'%';ui.cHp.style.width=(Math.max(0,c.hp)/c.maxHp*100)+'%';ui.pSuper.style.width=clamp(p.super,0,100)+'%';ui.cSuper.style.width=clamp(c.super,0,100)+'%';ui.pHpTxt.textContent=Math.ceil(Math.max(0,p.hp));ui.cHpTxt.textContent=c===p?this.fighters.filter(f=>f.hp>0).length+' left':Math.ceil(Math.max(0,c.hp));ui.timer.textContent=Math.ceil(this.time);updateCooldowns(ui.pCools,p);updateCooldowns(ui.cCools,c);ui.stateTxt.textContent=this.paused?'PAUSED':'FFA'; updatePingUI();}
   finishByHP(why){let best=null;for(const f of this.fighters){if(!best||f.hp>best.hp)best=f;}this.finish(best?best.netId:null,why);}
   finish(winnerId,why){if(this.state==='over')return;this.state='over';this.winner=winnerId;const win=this.fighters.find(f=>f.netId===winnerId);ui.resultTitle.textContent=winnerId===this.localId?'Victory!':(win?(win.userName+' Wins'):'Match Over');ui.resultText.textContent=`${why}. Winner: ${win?win.userName:'Nobody'}.`;showScreen('over');}
 }
@@ -1211,7 +1409,7 @@ function getNearestEnemy(f,g){const enemies=getOpponents(f,g);let best=enemies[0
 function abilityCooldown(f,slot){
   const id=f.char.id;
   const table={
-    stasis:[5.0,3.1], monkey:[3.2,4.2], magia:[5.5,5.2], sword:[5.2,3.6], spear:[2.6,5.0], katana:[3.0,6.0], mach:[3.2,4.1], axiom:[5.8,5.8], samurai:[3.2,7.0], lance:[2.8,4.3], unarmed:[5.0,8.0], rapier:[3.2,3.8],
+    stasis:[5.0,3.1], monkey:[3.2,4.2], magia:[5.5,5.2], sword:[5.2,3.6], spear:[2.6,5.0], katana:[3.0,6.0], mach:[3.2,4.1], axiom:[5.8,5.8], samurai:[3.2,7.0], lance:[2.8,4.3], unarmed:[5.0,0.1], rapier:[3.2,3.8],
     goku:[5.0,10.5], thunder:[5.2,5.4], ninja:[5.0,2.2], brute:[6.2,7.4], slayer:[4.2,5.0]
   };
   return table[id][slot==='a1'?0:1];
@@ -1318,9 +1516,9 @@ function useAbility2(f,g){
   else if(id==='katana'){ f.status.katanaMark=3.0; g.texts.push(new FloatText(f.x,f.y-f.r-16,'FIVE-CUT READY',c)); }
   else if(id==='mach'){ g.hitboxes.push(new Hitbox(f,{kind:'circle',x:f.x,y:f.y,r:95,damage:11,knock:760,life:.14,max:.14,color:c,heavy:true})); shockwave(f.x,f.y,c,g); }
   else if(id==='axiom'){ f.recovery=.82; f.vx*=.05; f.vy*=.05; g.telegraphs.push(new Telegraph('line',f,{ang:a,length:340,width:72,life:.55,color:'#4fa4ff'})); setTimeout(()=>{if(game===g&&f.alive){f.vx*=.05;f.vy*=.05;const p=new Projectile(f,f.x+Math.cos(a)*65,f.y+Math.sin(a)*65,Math.cos(a)*760,Math.sin(a)*760,32,10,'#4fa4ff','blue');g.projectiles.push(p);g.beams.push(new Beam(p.x,p.y,p.x+Math.cos(a)*340,p.y+Math.sin(a)*340,'#4fa4ff',.2,28));sfx('boom',.65);}},550); }
-  else if(id==='samurai'){ f.soulReturn={x:f.x,y:f.y,t:7.0,record:0,path:[{x:f.x,y:f.y}]}; g.texts.push(new FloatText(f.x,f.y-f.r-16,'SOUL PATH',c)); f.vx+=Math.cos(a)*780; f.vy+=Math.sin(a)*420; g.rings.push(new Ring(f.x,f.y,30,.45,c,4)); }
+  else if(id==='samurai'){ f.soulReturn={x:f.x,y:f.y,t:5.0,record:0,path:[{x:f.x,y:f.y}]}; g.texts.push(new FloatText(f.x,f.y-f.r-16,'SOUL PATH',c)); f.vx+=Math.cos(a)*780; f.vy+=Math.sin(a)*420; g.rings.push(new Ring(f.x,f.y,30,.45,c,4)); }
   else if(id==='lance'){ f.status.guard=1.0; f.blockTime=1.0; g.telegraphs.push(new Telegraph('line',f,{ang:a,length:320,width:34,life:.18,color:c})); setTimeout(()=>{if(game===g&&f.alive)startDash(f,g,a,1350,.34,18,280,30,760,c,true);},160); }
-  else if(id==='unarmed'){ f.status.growth=clamp(f.status.growth+.13,0,.45); g.texts.push(new FloatText(f.x,f.y-f.r-16,'INNER GROWTH',c)); }
+  else if(id==='unarmed'){ g.texts.push(new FloatText(f.x,f.y-f.r-16,'PASSIVE GROWTH',c)); f.a2Cd=.35; }
   else if(id==='goku'){
     f.status.kaioken=5.2; f.status.kaiokenCrash=0; g.texts.push(new FloatText(f.x,f.y-f.r-16,'KAIOKEN', '#ff2b3d')); for(let i=0;i<38;i++)g.particles.push(new Particle(f.x,f.y,rand(-180,180),rand(-180,180),.55,'#ff2b3d',rand(3,7),'spark')); setTimeout(()=>{if(game===g&&f.alive){f.hp=Math.max(1,f.hp-9);f.status.kaiokenCrash=3.5;g.texts.push(new FloatText(f.x,f.y-f.r-18,'KAIOKEN BACKLASH','#ff5c5c'));}},5200);
   }
@@ -1875,7 +2073,7 @@ function setKnob(knob,dx,dy){knob.style.left=(43+dx)+'px';knob.style.top=(43+dy)
 moveStick.addEventListener('touchstart',e=>{const t=e.changedTouches[0];moveTouch=t.identifier;handleMoveTouch(t);e.preventDefault();},{passive:false});
 moveStick.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===moveTouch)handleMoveTouch(t);e.preventDefault();},{passive:false});
 moveStick.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===moveTouch){moveTouch=null;mobile.move=0;setKnob(moveKnob,0,0);}}, {passive:false});
-function handleMoveTouch(t){const c=stickCenter(moveStick);let dx=t.clientX-c.x,dy=t.clientY-c.y;const l=Math.hypot(dx,dy);if(l>c.rad-22){dx=dx/l*(c.rad-22);dy=dy/l*(c.rad-22);}mobile.move=clamp(dx/(c.rad-22),-1,1);setKnob(moveKnob,dx,dy);}
+function handleMoveTouch(t){const c=stickCenter(moveStick);let dx=t.clientX-c.x,dy=t.clientY-c.y;const l=Math.hypot(dx,dy);if(l>c.rad-22){dx=dx/l*(c.rad-22);dy=dy/l*(c.rad-22);}mobile.move=clamp(dx/(c.rad-22)*SETTINGS.touchSensitivity,-1,1);setKnob(moveKnob,dx,dy);}
 aimPad.addEventListener('touchstart',e=>{const t=e.changedTouches[0];aimTouch=t.identifier;handleAimTouch(t);e.preventDefault();},{passive:false});
 aimPad.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===aimTouch)handleAimTouch(t);e.preventDefault();},{passive:false});
 aimPad.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===aimTouch){aimTouch=null;mobile.aimActive=false;setKnob(aimKnob,0,0);}}, {passive:false});
@@ -1921,7 +2119,7 @@ function exitToMainMenu(){
 }
 
 // Optional online rooms. Server manages lobby state; host simulates match and sends correction snapshots.
-const net={ws:null,room:'',mode:'duel',role:null,id:null,remoteInput:null,remoteInputs:{},ready:false,char:'stasis',players:[],send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify({...o,room:this.room,mode:this.mode}));}};
+const net={ws:null,room:'',mode:'duel',role:null,id:null,remoteInput:null,remoteInputs:{},ready:false,char:'stasis',players:[],ping:0,pingTimer:null,lastPingSent:0,send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify({...o,room:this.room,mode:this.mode}));}};
 function defaultWsUrl(){
   if(location.protocol==='http:' || location.protocol==='https:'){
     return (location.protocol==='https:'?'wss://':'ws://') + location.host + '/ws';
@@ -1930,13 +2128,26 @@ function defaultWsUrl(){
 }
 function closeOnlineSocket(){
   if(net.ws){ try{net.send({type:'leave'}); net.ws.close();}catch(_){ } }
-  net.ws=null; net.role=null; net.id=null; net.ready=false; net.players=[]; net.remoteInput=null; net.remoteInputs={};
+  if(net.pingTimer){clearInterval(net.pingTimer); net.pingTimer=null;}
+  net.ws=null; net.role=null; net.id=null; net.ready=false; net.players=[]; net.remoteInput=null; net.remoteInputs={}; updatePingUI();
 }
 function enterLobby(room){
   if(ui.lobbyRoomCode) ui.lobbyRoomCode.textContent=room;
   if(ui.inviteLink) ui.inviteLink.value=currentInviteLink();
   onlineStep('lobby'); updateOnlineCards(); renderPlayerSlots(net.players);
 }
+function updatePingUI(){
+  const text=net.ping?('Ping '+Math.round(net.ping)+'ms'):'Ping --';
+  const quality=!net.ping?'':(net.ping<70?' · good':net.ping<130?' · ok':' · high');
+  if(ui.pingPill) ui.pingPill.textContent=text+quality;
+  if(ui.hudPingPill) ui.hudPingPill.textContent=text;
+}
+function startPingLoop(){
+  if(net.pingTimer) clearInterval(net.pingTimer);
+  const sendPing=()=>{ if(net.ws&&net.ws.readyState===1){ net.lastPingSent=performance.now(); net.send({type:'ping',t:Date.now(),clientNow:net.lastPingSent}); } };
+  sendPing(); net.pingTimer=setInterval(sendPing,2000);
+}
+
 function startOnlineMatch(msg){
   net.mode = msg.mode || net.mode || 'duel';
   net.role = msg.role || net.role || 'host';
@@ -1956,6 +2167,10 @@ function startOnlineMatch(msg){
 
 function connectOnline(mode){
   const url=(ui.serverUrl&&ui.serverUrl.value.trim()) || defaultWsUrl();
+  if(ui.invitePaste && ui.invitePaste.value.trim()){
+    try{const pasted=new URL(ui.invitePaste.value.trim()); const r=pasted.searchParams.get('room'); const m=pasted.searchParams.get('mode'); if(r&&ui.roomCode)ui.roomCode.value=r; if(m&&ui.roomMode)ui.roomMode.value=m==='ffa'?'ffa':'duel';}
+    catch(_){ const m=ui.invitePaste.value.trim().match(/[?&]room=([^&]+)/i); if(m&&ui.roomCode)ui.roomCode.value=decodeURIComponent(m[1]); }
+  }
   const room=((ui.roomCode&&ui.roomCode.value.trim()) || makeRoomCode()).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24) || makeRoomCode();
   const name=sanitizeName(ui.userName&&ui.userName.value);
   localStorage.setItem('bcaName', name);
@@ -1964,13 +2179,14 @@ function connectOnline(mode){
   net.room=room; net.char=selectedPlayer; net.ready=false;
   closeOnlineSocket(); net.mode=(ui.roomMode&&ui.roomMode.value)||net.mode||'duel'; setOnlineStatus('Connecting...');
   try{net.ws=new WebSocket(url);}catch(e){setOnlineStatus('Bad server URL');return;}
-  net.ws.onopen=()=>{setOnlineStatus((mode==='create'?'Creating ':'Joining ')+room+'...');net.send({type:'join',name,char:selectedPlayer,mode:net.mode});};
+  net.ws.onopen=()=>{setOnlineStatus((mode==='create'?'Creating ':'Joining ')+room+'...');startPingLoop();net.send({type:'join',name,char:selectedPlayer,mode:net.mode});};
   net.ws.onclose=()=>{setOnlineStatus('Disconnected');};
   net.ws.onerror=()=>setOnlineStatus('Connection error');
   net.ws.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}
     if(m.type==='role'){net.role=m.role;net.id=m.id;net.room=m.room||net.room;net.mode=m.mode||net.mode; if(ui.roomMode)ui.roomMode.value=net.mode; enterLobby(net.room);setOnlineStatus('In lobby as '+net.role+'.');}
     if(m.type==='room_state'){net.players=m.players||[];net.mode=m.mode||net.mode; if(ui.roomMode)ui.roomMode.value=net.mode; const me=net.players.find(p=>p.id===net.id); if(me){net.ready=!!me.ready; selectedPlayer=me.char||selectedPlayer;} renderPlayerSlots(net.players); updateOnlineCards(); setOnlineStatus(net.players.length<2?'Waiting for players...':(net.mode==='ffa'?'FFA lobby: ready when everyone is set.':'Choose fighter and ready up.'));}
     if(m.type==='start'){net.role=m.role||net.role;net.mode=m.mode||net.mode;setOnlineStatus('Match started as '+net.role);startOnlineMatch(m);}
+    if(m.type==='pong'){net.ping=Math.max(1,performance.now()-(net.lastPingSent||performance.now())); updatePingUI();}
     if(m.type==='input'){if(m.from){net.remoteInputs[m.from]=m.input;}else{net.remoteInput=m.input;}}
     if(m.type==='state'&&game&&net.role!=='host'){game.applyState(m.state);} 
     if(m.type==='full'){setOnlineStatus('Room full. Try another room code.');}
@@ -1987,7 +2203,15 @@ async function copyText(v){
   catch(_){setOnlineStatus('Copy failed. Select and copy manually.');}
 }
 
+bindSettings();
 document.getElementById('playBtn').onclick=()=>{showScreen('select');};
+document.getElementById('tutorialBtn').onclick=()=>showScreen('tutorial');
+document.getElementById('settingsBtn').onclick=()=>showScreen('settings');
+document.getElementById('creditsBtn').onclick=()=>showScreen('credits');
+document.getElementById('tutorialBackBtn').onclick=()=>showScreen('menu');
+document.getElementById('settingsBackBtn').onclick=()=>showScreen('menu');
+document.getElementById('creditsBackBtn').onclick=()=>showScreen('menu');
+document.getElementById('tutorialPracticeBtn').onclick=()=>{selectedPlayer='stasis'; selectedCPU='monkey'; startFight();};
 const selectBackBtn=document.getElementById('selectBackBtn'); if(selectBackBtn) selectBackBtn.onclick=()=>showScreen('menu');
 document.getElementById('onlineBtn').onclick=openOnlineMenu;
 document.getElementById('onlineBackBtn').onclick=()=>{closeOnlineSocket();showScreen('menu');};

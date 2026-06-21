@@ -1,26 +1,127 @@
 # Ball Clash Arena
 
-Deploy this folder to Render as a Node Web Service.
+Ball Clash Arena is a browser-based physics arena fighter. Players control weaponized balls that bounce through a neon arena, clash weapons, parry/block, use character abilities, and charge cinematic supers.
 
-## Files
-- `index.html` - game client and UI
-- `ball_clash_arena_v10.html` - same game file, kept for local opening/testing
-- `server.js` - no-dependency Node.js WebSocket room server
-- `package.json` / `render.yaml` - Render deployment metadata
+This release is designed to be dropped into a GitHub repository and deployed on Render as a small/free Node web service. It uses one HTML5 Canvas client and a zero-dependency Node WebSocket room server.
 
-## Render
-Start command:
+## File structure
 
-```bash
-node server.js
+```text
+ball-clash-arena-render/
+├── index.html                  # Main game client, UI, Canvas renderer, gameplay logic
+├── ball_clash_arena_v10.html   # Mirror of index.html for direct/local testing
+├── server.js                   # Node HTTP + WebSocket room server, no npm packages
+├── package.json                # Node metadata and start script
+├── render.yaml                 # Render web service config
+├── README.md                   # Setup/deploy/play guide
+├── CHANGELOG.md                # Release notes
+└── .gitignore
 ```
 
-Use Frankfurt region for lower EU ping.
+## Run locally
 
-## Multiplayer
-- Create or join a room.
-- Choose mode: Duel 1v1 or Free For All 2-6 players.
-- Share the invite link or room code.
-- Everyone chooses a fighter and presses Ready.
+Requires Node 18 or newer.
 
-FFA is host-authoritative: the first player in the room simulates the match and other players send inputs to the host through the server.
+```bash
+npm start
+```
+
+Then open:
+
+```text
+http://localhost:8080
+```
+
+Health check:
+
+```text
+http://localhost:8080/health
+```
+
+## Deploy on Render
+
+Create a **Web Service** from your GitHub repository.
+
+Recommended settings:
+
+```text
+Environment: Node
+Region: Frankfurt, Germany for Europe-to-Europe latency
+Build command: leave blank or use npm install
+Start command: node server.js
+Plan: Free or small paid plan
+```
+
+The included `render.yaml` uses:
+
+```yaml
+startCommand: "node server.js"
+```
+
+No paid database, Redis instance, external asset host, or native dependency is required.
+
+## How to invite friends
+
+1. Open the deployed Render URL.
+2. Choose **Multiplayer**.
+3. Enter a username.
+4. Choose **Duel 1v1** or **Free For All 2-6 players**.
+5. Click **Create Room**.
+6. Copy the invitation link from the lobby and send it to friends.
+7. Everyone picks a fighter and clicks **Ready**.
+
+Invite links include the room code and mode, for example `?room=ABC123&mode=ffa`. The lobby also accepts pasted invite links.
+
+## Multiplayer room model
+
+- The Node server owns room membership, ready state, mode selection, host assignment, disconnect handling, and ping/pong.
+- The first player in the room is the host.
+- The host simulates the match and sends compact state snapshots.
+- Other players send inputs to the host through the server.
+- This host-authoritative model is intentionally simple and Render-free friendly.
+- Duel rooms allow exactly 2 players.
+- FFA rooms allow 2 to 6 players.
+- If a player leaves, the room returns to lobby-safe state and ready flags reset.
+
+For best multiplayer feel, use the same Render region as the players. For Europe-to-Europe testing, Frankfurt is the intended region.
+
+## Controls
+
+Desktop:
+
+```text
+Move: A/D or Left/Right arrows
+Jump / bounce redirect: W, Space, or Up arrow
+Aim: mouse
+Attack: left mouse button
+Parry / block: right mouse button or Shift
+Q ability: Q
+E ability: E
+Super: R
+Pause: Esc
+```
+
+Mobile:
+
+```text
+Left stick: movement
+Right pad: aim
+Buttons: Jump, Attack, Parry, Q, E, R
+```
+
+## Current game modes
+
+- **Single Player**: character select, optional opponent select/random, CPU opponent.
+- **Multiplayer 1v1**: two-player host-authoritative duel.
+- **Multiplayer FFA**: 2 to 6 players, spawned around the arena, with names and health shown.
+
+## Public-test notes
+
+This build includes the release-ready UI flow, tutorial, settings, richer character selection, host-authoritative rooms, ping display, invite link support, disconnect recovery, capped VFX arrays, delayed speed ramp, improved parry/block/clash readability, and character rework tuning.
+
+Known limitations:
+
+- The multiplayer model prioritizes small friend-group matches over massive scaling.
+- Host advantage can exist because the host simulates the game.
+- Free Render instances may sleep when idle; the first visitor after sleep can experience a cold start.
+- No persistent accounts, matchmaking queue, leaderboard, or server-side anti-cheat is included.
