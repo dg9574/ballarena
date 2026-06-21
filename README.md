@@ -138,3 +138,13 @@ Known limitations:
 
 The end-of-match flow now records the hit that reduces a fighter to zero HP and presents it in a full-screen animated victory/defeat scene. The result screen shows the finisher, eliminated fighter, move/source, damage, and final HP swing. Time-limit results fall back to a clear decision screen when no killing hit exists.
 
+
+## Character Balance Update
+
+This build adds two new fighters and updates several existing kits:
+
+- **Magician**: rune/letter/root caster with Rune Root, Letter Blast, glyph projectiles, and a full-screen **Grand Rune Cataclysm** ultimate effect.
+- **Viking**: shield-and-axe bruiser with visible shield + axe, Shield Rush knockback/bounce pressure, Axe Smack, and **Valhalla Rebirth**. Viking has no normal manual R attack; when super is fully charged, lethal damage automatically revives him at half HP.
+- **Axiom**: Red, Blue, and Purple abilities are now dodge-checks that cannot be blocked, parried, or swatted by weapons.
+- **Unarmed**: E is now a true passive growth effect rather than an activated ability.
+- **Brute**: Berserk lifesteal is stronger, and E now locks into an actual axe spin that ignores mouse aim changes until the spin finishes.

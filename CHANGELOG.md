@@ -97,3 +97,31 @@
 - Synchronized finisher data through multiplayer host state packets so guests see the same end result.
 - Added a decision fallback for time-limit endings where no killing blow exists.
 
+
+## Character Balance and New Fighters Update
+
+### New fighters
+
+- Added **Magician**, a rune caster with glyph projectiles, Rune Root, Letter Blast, and a full-screen Grand Rune Cataclysm ultimate presentation.
+- Added **Viking**, a shield-and-axe bruiser with two visible weapons, Shield Rush, Axe Smack, and Valhalla Rebirth.
+- Viking R is not a normal casted attack: if super is full when Viking takes lethal damage, he is automatically reborn at half HP and consumes the super meter.
+
+### Balance / mechanics
+
+- Buffed **Axiom** so Q, E, and R projectiles cannot be blocked, parried, weapon-clashed, or swatted by weapon hitboxes. They must be dodged.
+- Converted **Unarmed E** into passive growth only; pressing E no longer triggers an interactable ability.
+- Increased **Brute** Berserk lifesteal and passive berserk damage value.
+- Reworked **Brute E** into a real spinning axe state with locked weapon direction and repeated cyclone hitboxes. Mouse aim no longer cancels or redirects the spin before it finishes.
+
+### Visuals / sync
+
+- Added Magician glyph projectile rendering, rune root bursts, letter blast particles, and full-screen rune overlay.
+- Added Viking shield/axe weapon drawing, Valhalla screen effect, rebirth rings, and rebirth-ready aura.
+- Synced screen effects, no-block projectile metadata, Viking rebirth status, and Brute spin status through multiplayer state packets.
+
+### Validation
+
+- Verified server JavaScript syntax with `node --check server.js`.
+- Verified extracted client JavaScript syntax with `node --check`.
+- Verified local server `/health` startup response.
+- Smoke-tested client runtime in Chromium using loaded HTML: Magician start + ultimate effect, Viking lethal-damage rebirth, Brute E spin lock, and Axiom weapon-block bypass.
