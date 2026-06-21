@@ -159,6 +159,351 @@
     #selectScreen #showcaseCanvas{height:112px;}
   }
 
+
+
+  /* Polished fighter-select redesign: full-screen app shell, readable cards, no canvas bleed. */
+  #selectScreen.screen{
+    position:fixed!important;
+    inset:0!important;
+    align-items:stretch!important;
+    justify-content:center!important;
+    padding:clamp(14px,2.1vw,34px)!important;
+    background:
+      radial-gradient(circle at 16% 10%, rgba(115,247,255,.17), transparent 34%),
+      radial-gradient(circle at 88% 22%, rgba(255,79,125,.12), transparent 30%),
+      linear-gradient(135deg, #050814 0%, #071127 54%, #03050d 100%)!important;
+    overflow:hidden!important;
+    z-index:40!important;
+  }
+  #selectScreen.screen::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.34;
+    background-image:
+      linear-gradient(rgba(115,247,255,.09) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(115,247,255,.075) 1px, transparent 1px);
+    background-size:54px 54px;
+    mask-image:radial-gradient(circle at 50% 46%, #000 0%, transparent 82%);
+  }
+  #selectScreen.screen::after{
+    content:"FIGHTER SELECT";
+    position:absolute;
+    right:clamp(18px,3vw,58px);
+    bottom:clamp(10px,2vw,34px);
+    font-size:clamp(42px,7vw,126px);
+    line-height:.8;
+    font-weight:1000;
+    letter-spacing:.08em;
+    color:rgba(255,255,255,.025);
+    pointer-events:none;
+  }
+  #selectScreen .selectPanel{
+    position:relative!important;
+    z-index:1!important;
+    width:min(1720px,100%)!important;
+    height:min(980px,100%)!important;
+    max-width:none!important;
+    max-height:none!important;
+    display:grid!important;
+    grid-template-rows:auto minmax(0,1fr)!important;
+    gap:clamp(14px,1.4vw,20px)!important;
+    padding:clamp(16px,1.55vw,24px)!important;
+    overflow:hidden!important;
+    border-radius:30px!important;
+    border:1px solid rgba(160,236,255,.32)!important;
+    background:
+      linear-gradient(180deg, rgba(13,24,50,.98) 0%, rgba(6,12,27,.99) 100%)!important;
+    box-shadow:
+      0 28px 90px rgba(0,0,0,.62),
+      0 0 0 1px rgba(255,255,255,.05) inset,
+      0 0 80px rgba(115,247,255,.08) inset!important;
+    backdrop-filter:none!important;
+  }
+  #selectScreen .selectHeader{
+    margin:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    gap:18px!important;
+    padding:clamp(16px,1.5vw,22px)!important;
+    border-radius:22px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    background:
+      linear-gradient(135deg, rgba(29,46,86,.95), rgba(9,18,39,.98)),
+      radial-gradient(circle at 0% 50%, rgba(115,247,255,.16), transparent 36%)!important;
+    box-shadow:0 16px 44px rgba(0,0,0,.30)!important;
+  }
+  #selectScreen .selectHeader h2{
+    margin:0 0 6px!important;
+    font-size:clamp(28px,3.15vw,52px)!important;
+    line-height:1!important;
+    letter-spacing:-.035em!important;
+    text-transform:none!important;
+    color:#f8fbff!important;
+    text-shadow:0 0 24px rgba(115,247,255,.22)!important;
+  }
+  #selectScreen .selectHeader p{
+    margin:0!important;
+    max-width:920px!important;
+    color:#bcd3f8!important;
+    font-size:clamp(13px,.92vw,16px)!important;
+    line-height:1.45!important;
+  }
+  #selectScreen .selectActions{
+    display:flex!important;
+    justify-content:flex-end!important;
+    gap:10px!important;
+    flex-wrap:nowrap!important;
+  }
+  #selectScreen .selectActions button{
+    min-height:48px!important;
+    padding:12px 16px!important;
+    border-radius:15px!important;
+    white-space:nowrap!important;
+  }
+  #selectScreen .detailLayout{
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(640px,1fr) minmax(430px,500px)!important;
+    gap:clamp(14px,1.4vw,20px)!important;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+  #selectScreen #charCards.cards{
+    min-height:0!important;
+    height:100%!important;
+    overflow:auto!important;
+    margin:0!important;
+    padding:2px 12px 8px 2px!important;
+    display:grid!important;
+    grid-template-columns:repeat(auto-fill,minmax(254px,1fr))!important;
+    gap:14px!important;
+    align-content:start!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:rgba(115,247,255,.86) rgba(255,255,255,.08)!important;
+  }
+  #selectScreen #charCards.cards::-webkit-scrollbar,
+  #selectScreen .detailPanel::-webkit-scrollbar,
+  .onlineCards::-webkit-scrollbar{width:10px;height:10px;}
+  #selectScreen #charCards.cards::-webkit-scrollbar-track,
+  #selectScreen .detailPanel::-webkit-scrollbar-track,
+  .onlineCards::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:999px;}
+  #selectScreen #charCards.cards::-webkit-scrollbar-thumb,
+  #selectScreen .detailPanel::-webkit-scrollbar-thumb,
+  .onlineCards::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#73f7ff,#8affc5);border-radius:999px;}
+  #selectScreen .card.charCard{
+    min-height:214px!important;
+    padding:0!important;
+    display:grid!important;
+    grid-template-rows:auto minmax(48px,auto) auto auto!important;
+    gap:10px!important;
+    border-radius:22px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    background:
+      radial-gradient(circle at 20% 8%, color-mix(in srgb, var(--char-color, #73f7ff) 28%, transparent), transparent 38%),
+      linear-gradient(180deg, rgba(22,34,66,.97), rgba(8,15,32,.99))!important;
+    box-shadow:0 12px 28px rgba(0,0,0,.26), inset 0 0 0 1px rgba(255,255,255,.035)!important;
+    overflow:hidden!important;
+    transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease, filter .12s ease!important;
+  }
+  #selectScreen .card.charCard:hover{
+    transform:translateY(-2px)!important;
+    border-color:rgba(115,247,255,.55)!important;
+    box-shadow:0 18px 38px rgba(0,0,0,.34),0 0 24px color-mix(in srgb, var(--char-color, #73f7ff) 28%, transparent)!important;
+  }
+  #selectScreen .card.charCard.selected{
+    border-color:var(--char-color,#73f7ff)!important;
+    box-shadow:0 0 0 2px color-mix(in srgb, var(--char-color,#73f7ff) 58%, transparent),0 20px 46px rgba(0,0,0,.42),0 0 28px color-mix(in srgb, var(--char-color,#73f7ff) 30%, transparent)!important;
+  }
+  #selectScreen .charCardTop{
+    display:grid;
+    grid-template-columns:64px minmax(0,1fr);
+    gap:12px;
+    align-items:center;
+    padding:14px 14px 0;
+  }
+  #selectScreen .charAvatar{
+    width:62px;height:62px;border-radius:20px;
+    display:grid;place-items:center;
+    background:
+      radial-gradient(circle at 40% 28%, rgba(255,255,255,.82), transparent 22%),
+      radial-gradient(circle at 48% 48%, var(--char-color,#73f7ff), color-mix(in srgb, var(--char-color,#73f7ff) 72%, #06101d));
+    box-shadow:0 0 28px color-mix(in srgb, var(--char-color,#73f7ff) 45%, transparent), inset 0 -10px 18px rgba(0,0,0,.20);
+    color:#07111f;
+    font-weight:1000;
+    font-size:28px;
+    text-shadow:0 1px 0 rgba(255,255,255,.26);
+    position:relative;
+  }
+  #selectScreen .charAvatar::after{
+    content:"";position:absolute;right:-14px;top:28px;width:38px;height:5px;border-radius:999px;background:var(--char-color2,#fff);box-shadow:0 0 16px var(--char-color2,#fff);transform:rotate(-6deg);
+  }
+  #selectScreen .card.charCard h3{
+    margin:0 0 7px!important;
+    font-size:20px!important;
+    line-height:1.02!important;
+    color:#fff!important;
+    letter-spacing:-.02em!important;
+  }
+  #selectScreen .charTags{display:flex;gap:6px;flex-wrap:wrap;min-width:0;}
+  #selectScreen .charTag{
+    display:inline-flex;align-items:center;max-width:100%;
+    padding:5px 8px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.07);
+    color:#eaf3ff;
+    font-size:10px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+  #selectScreen .charTheme{
+    margin:0!important;
+    padding:0 14px!important;
+    color:#cfddf7!important;
+    font-size:12.5px!important;
+    line-height:1.36!important;
+  }
+  #selectScreen .statGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px 12px;
+    padding:0 14px;
+  }
+  #selectScreen .statLabel{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:#aebee0;font-weight:900;letter-spacing:.03em;text-transform:uppercase;}
+  #selectScreen .statBar{height:7px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:4px;}
+  #selectScreen .statBar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--char-color,#73f7ff),var(--char-color2,#fff));box-shadow:0 0 12px color-mix(in srgb, var(--char-color,#73f7ff) 45%, transparent);}
+  #selectScreen .moveStrip{
+    margin-top:auto;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    border-top:1px solid rgba(255,255,255,.08);
+    background:rgba(0,0,0,.16);
+  }
+  #selectScreen .moveStrip span{
+    min-width:0;
+    padding:9px 8px;
+    color:#eaf3ff;
+    font-size:10.5px;
+    line-height:1.1;
+    font-weight:900;
+    border-left:1px solid rgba(255,255,255,.06);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #selectScreen .moveStrip span:first-child{border-left:0;}
+  #selectScreen .moveStrip b{color:var(--char-color2,#fff);}
+  #selectScreen .detailPanel{
+    min-height:0!important;
+    height:100%!important;
+    overflow:auto!important;
+    padding:0!important;
+    border-radius:26px!important;
+    border:1px solid rgba(255,255,255,.14)!important;
+    background:
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--detail-color,#73f7ff) 14%, transparent), transparent 42%),
+      linear-gradient(180deg, rgba(18,31,62,.98), rgba(6,12,27,.99))!important;
+    box-shadow:0 18px 46px rgba(0,0,0,.32), inset 0 0 0 1px rgba(255,255,255,.04)!important;
+  }
+  #selectScreen .detailHero{padding:18px 18px 14px;}
+  #selectScreen .detailTitleRow{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px;}
+  #selectScreen .detailNameWrap{display:flex;align-items:center;gap:12px;min-width:0;}
+  #selectScreen .detailAvatar{
+    width:66px;height:66px;border-radius:22px;display:grid;place-items:center;flex:0 0 auto;
+    background:radial-gradient(circle at 40% 26%, rgba(255,255,255,.86), transparent 22%),radial-gradient(circle,var(--detail-color,#73f7ff),color-mix(in srgb, var(--detail-color,#73f7ff) 62%, #07111f));
+    box-shadow:0 0 34px color-mix(in srgb, var(--detail-color,#73f7ff) 45%, transparent);
+    color:#07111f;font-weight:1000;font-size:30px;
+  }
+  #selectScreen .detailPanel h3{margin:0!important;font-size:clamp(28px,2.1vw,42px)!important;letter-spacing:-.035em!important;color:#fff!important;line-height:1!important;}
+  #selectScreen .difficultyBadge{padding:7px 10px;border-radius:999px;border:1px solid color-mix(in srgb, var(--detail-color,#73f7ff) 45%, rgba(255,255,255,.12));background:color-mix(in srgb, var(--detail-color,#73f7ff) 14%, rgba(255,255,255,.05));color:#f9fcff;font-size:11px;font-weight:1000;white-space:nowrap;}
+  #selectScreen .detailTheme{margin:0 0 12px!important;color:#dceaff!important;font-size:14px!important;line-height:1.45!important;}
+  #selectScreen .detailPills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  #selectScreen .detailPill{display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.14);color:#ecf5ff;font-size:11px;font-weight:900;}
+  #selectScreen .detailPill b{color:var(--detail-color2,#fff);}
+  #selectScreen #showcaseCanvas{
+    width:100%!important;
+    height:clamp(180px,24vh,260px)!important;
+    max-height:none!important;
+    margin:0!important;
+    border-radius:22px!important;
+    border:1px solid rgba(255,255,255,.13)!important;
+    background:radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--detail-color,#73f7ff) 18%, transparent), rgba(0,0,0,.38))!important;
+    box-shadow:inset 0 0 42px rgba(0,0,0,.22),0 12px 28px rgba(0,0,0,.26)!important;
+  }
+  #selectScreen .detailSection{padding:0 18px 18px;}
+  #selectScreen .abilityGrid.heroAbilities{grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:0!important;}
+  #selectScreen .abilityBox{
+    min-height:108px;
+    border-radius:18px!important;
+    border:1px solid rgba(255,255,255,.13)!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035))!important;
+    color:#e8f2ff!important;
+    font-size:12.5px!important;
+    line-height:1.38!important;
+    padding:12px!important;
+  }
+  #selectScreen .abilityBox b{color:#fff!important;}
+  #selectScreen .abilityBox .moveKey{display:inline-flex;align-items:center;justify-content:center;margin-right:6px;width:24px;height:24px;border-radius:8px;background:var(--detail-color,#73f7ff);color:#07111f;font-weight:1000;box-shadow:0 0 16px color-mix(in srgb,var(--detail-color,#73f7ff) 38%, transparent);}
+  #selectScreen .strengthBox{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  #selectScreen .strengthBox .abilityBox{min-height:82px;}
+
+  .onlineCards{
+    display:grid!important;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important;
+    gap:12px!important;
+    max-height:min(58vh,600px)!important;
+    overflow:auto!important;
+    padding:2px 8px 4px 2px!important;
+  }
+  .onlineCards .card{
+    min-height:154px!important;
+    border-radius:20px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    background:linear-gradient(180deg,rgba(22,34,66,.96),rgba(8,15,32,.99))!important;
+    box-shadow:0 12px 28px rgba(0,0,0,.23)!important;
+  }
+  .onlineCards .card:hover,.onlineCards .card.selected{border-color:#73f7ff!important;box-shadow:0 0 0 2px rgba(115,247,255,.18),0 16px 34px rgba(0,0,0,.34)!important;}
+  .onlineCards .card h3{font-size:18px!important;color:#fff!important;}
+  .onlineCards .card .small{font-size:12px!important;color:#dce9ff!important;line-height:1.32!important;}
+
+  @media (min-width:1500px){
+    #selectScreen #charCards.cards{grid-template-columns:repeat(auto-fill,minmax(276px,1fr))!important;}
+    #selectScreen .detailLayout{grid-template-columns:minmax(860px,1fr) minmax(480px,540px)!important;}
+  }
+  @media (max-width:1180px){
+    #selectScreen.screen{padding:12px!important;}
+    #selectScreen .selectPanel{height:calc(100dvh - 24px)!important;}
+    #selectScreen .selectHeader{grid-template-columns:1fr!important;}
+    #selectScreen .selectActions{justify-content:stretch!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;}
+    #selectScreen .detailLayout{grid-template-columns:1fr!important;grid-template-rows:minmax(350px,.48fr) minmax(0,1fr)!important;}
+    #selectScreen .detailPanel{order:0!important;}
+    #selectScreen #charCards.cards{order:1!important;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important;}
+  }
+  @media (max-width:720px){
+    #selectScreen.screen{padding:8px!important;}
+    #selectScreen .selectPanel{height:calc(100dvh - 16px)!important;padding:10px!important;border-radius:22px!important;gap:10px!important;}
+    #selectScreen .selectHeader{padding:12px!important;border-radius:18px!important;}
+    #selectScreen .selectHeader h2{font-size:28px!important;}
+    #selectScreen .selectHeader p{font-size:12px!important;}
+    #selectScreen .selectActions{grid-template-columns:1fr 1fr!important;gap:8px!important;}
+    #selectScreen .selectActions #startBtn{grid-column:1 / -1;}
+    #selectScreen .detailLayout{grid-template-rows:minmax(290px,.45fr) minmax(0,1fr)!important;gap:10px!important;}
+    #selectScreen #charCards.cards{grid-template-columns:1fr!important;gap:10px!important;padding-right:6px!important;}
+    #selectScreen .card.charCard{min-height:190px!important;}
+    #selectScreen .charCardTop{grid-template-columns:54px 1fr;padding:12px 12px 0;}
+    #selectScreen .charAvatar{width:52px;height:52px;border-radius:18px;font-size:24px;}
+    #selectScreen .detailHero{padding:13px;}
+    #selectScreen .detailTitleRow{align-items:center;margin-bottom:8px;}
+    #selectScreen .detailAvatar{width:52px;height:52px;border-radius:18px;font-size:23px;}
+    #selectScreen .detailPanel h3{font-size:26px!important;}
+    #selectScreen .difficultyBadge{display:none;}
+    #selectScreen #showcaseCanvas{height:132px!important;border-radius:16px!important;}
+    #selectScreen .detailSection{padding:0 13px 13px;}
+    #selectScreen .abilityGrid.heroAbilities{grid-template-columns:1fr!important;}
+    #selectScreen .strengthBox{grid-template-columns:1fr;}
+    .onlineCards{grid-template-columns:1fr!important;max-height:42vh!important;}
+  }
+
 </style>
 </head>
 <body>
@@ -589,23 +934,47 @@ function showScreen(name){
     ui.hud.classList.toggle('hidden', !inGame);
     ui.hud.style.display = inGame ? 'block' : 'none';
   }
-  canvas.style.display = 'block';
-  canvas.style.visibility = 'visible';
+  const canvasVisible = name === 'game' || name === 'menu';
+  canvas.style.display = canvasVisible ? 'block' : 'none';
+  canvas.style.visibility = canvasVisible ? 'visible' : 'hidden';
 }
 
 function renderSelectedDetails(){
   if(!ui.selectedDetails) return;
   const ch=CHAR_BY_ID[selectedPlayer]||CHARS[0], d=charDetail(ch);
+  ui.selectedDetails.style.setProperty('--detail-color', ch.color);
+  ui.selectedDetails.style.setProperty('--detail-color2', ch.color2);
   ui.selectedDetails.innerHTML=`
-    <h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span> ${ch.name}</h3>
-    <p class="small"><b>Theme:</b> ${ch.theme}</p>
-    <div class="pillRow"><span class="pill">Weapon: ${d.weapon}</span><span class="pill">Playstyle: ${d.style}</span><span class="pill">Difficulty: ${d.difficulty}</span></div>
-    <canvas id="showcaseCanvas" width="520" height="220"></canvas>
-    <div class="abilityGrid">
-      <div class="abilityBox"><b>Q · ${ch.a1}</b><br>${abilityCopy(ch.id,'q')}</div>
-      <div class="abilityBox"><b>E · ${ch.a2}</b><br>${abilityCopy(ch.id,'e')}</div>
-      <div class="abilityBox"><b>R · ${ch.super}</b><br>${abilityCopy(ch.id,'r')}</div>
-      <div class="abilityBox"><b>Passive</b><br>${d.passive}<br><br><b>Strength:</b> ${d.strength}<br><b>Weakness:</b> ${ch.weak}</div>
+    <div class="detailHero">
+      <div class="detailTitleRow">
+        <div class="detailNameWrap">
+          <div class="detailAvatar">${ch.name[0]}</div>
+          <div>
+            <h3>${ch.name}</h3>
+            <div class="small">${d.style}</div>
+          </div>
+        </div>
+        <div class="difficultyBadge">${d.difficulty}</div>
+      </div>
+      <p class="detailTheme">${ch.theme}</p>
+      <div class="detailPills">
+        <span class="detailPill"><b>Weapon</b> ${d.weapon}</span>
+        <span class="detailPill"><b>Reach</b> ${Math.round(ch.reach)}</span>
+        <span class="detailPill"><b>HP</b> ${Math.round(ch.hp)}</span>
+      </div>
+      <canvas id="showcaseCanvas" width="640" height="300"></canvas>
+    </div>
+    <div class="detailSection">
+      <div class="abilityGrid heroAbilities">
+        <div class="abilityBox"><b><span class="moveKey">Q</span>${ch.a1}</b><br>${abilityCopy(ch.id,'q')}</div>
+        <div class="abilityBox"><b><span class="moveKey">E</span>${ch.a2}</b><br>${abilityCopy(ch.id,'e')}</div>
+        <div class="abilityBox"><b><span class="moveKey">R</span>${ch.super}</b><br>${abilityCopy(ch.id,'r')}</div>
+        <div class="abilityBox"><b>Passive</b><br>${d.passive}</div>
+        <div class="strengthBox">
+          <div class="abilityBox"><b>Strength</b><br>${d.strength}</div>
+          <div class="abilityBox"><b>Weakness</b><br>${ch.weak}</div>
+        </div>
+      </div>
     </div>`;
   drawShowcase(ch);
 }
@@ -653,21 +1022,27 @@ function makeCards(){
   ui.charCards.innerHTML = '';
   for(const ch of CHARS){
     const card = document.createElement('div');
-    card.className = 'card';
+    const d = charDetail(ch);
+    card.className = 'card charCard';
     card.dataset.id = ch.id;
+    card.style.setProperty('--char-color', ch.color);
+    card.style.setProperty('--char-color2', ch.color2);
     card.innerHTML = `
-      <h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3>
-      <div class="pillRow"><span class="pill">${charDetail(ch).weapon}</span><span class="pill">${charDetail(ch).difficulty}</span></div>
-      <p class="small">${ch.theme}</p>
-      <div class="miniStats">
-        <div>HP<div class="barMini"><span style="width:${ch.hp/124*100}%"></span></div></div>
-        <div>Speed<div class="barMini"><span style="width:${ch.speed/1.55*100}%"></span></div></div>
-        <div>Jump<div class="barMini"><span style="width:${ch.jump/1.25*100}%"></span></div></div>
-        <div>Reach<div class="barMini"><span style="width:${ch.reach/150*100}%"></span></div></div>
+      <div class="charCardTop">
+        <div class="charAvatar">${ch.name[0]}</div>
+        <div>
+          <h3>${ch.name}</h3>
+          <div class="charTags"><span class="charTag">${d.weapon}</span><span class="charTag">${d.difficulty}</span></div>
+        </div>
       </div>
-      <div class="small"><b>Q:</b> ${ch.a1}</div>
-      <div class="small"><b>E:</b> ${ch.a2}</div>
-      <div class="small"><b>R:</b> ${ch.super}</div>`;
+      <p class="charTheme">${ch.theme}</p>
+      <div class="statGrid">
+        <div><div class="statLabel"><span>HP</span><span>${Math.round(ch.hp)}</span></div><div class="statBar"><span style="width:${Math.min(100,ch.hp/124*100)}%"></span></div></div>
+        <div><div class="statLabel"><span>Speed</span><span>${ch.speed.toFixed(2)}</span></div><div class="statBar"><span style="width:${Math.min(100,ch.speed/1.55*100)}%"></span></div></div>
+        <div><div class="statLabel"><span>Jump</span><span>${ch.jump.toFixed(2)}</span></div><div class="statBar"><span style="width:${Math.min(100,ch.jump/1.25*100)}%"></span></div></div>
+        <div><div class="statLabel"><span>Reach</span><span>${Math.round(ch.reach)}</span></div><div class="statBar"><span style="width:${Math.min(100,ch.reach/150*100)}%"></span></div></div>
+      </div>
+      <div class="moveStrip"><span><b>Q</b> ${ch.a1}</span><span><b>E</b> ${ch.a2}</span><span><b>R</b> ${ch.super}</span></div>`;
     card.addEventListener('click',()=>{
       if(pickOpponent){ selectedCPU = ch.id; ui.randomOpponentBtn.textContent = 'Opponent: '+ch.name; pickOpponent = false; }
       else selectedPlayer = ch.id;
@@ -716,7 +1091,12 @@ function makeOnlineCardGrid(root){
   for(const ch of CHARS){
     const card=document.createElement('div'); card.className='card'; card.dataset.id=ch.id;
     const d=charDetail(ch);
-    card.innerHTML=`<h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3><div class="pillRow"><span class="pill">${d.weapon}</span><span class="pill">${d.difficulty}</span></div><p class="small"><b>Q:</b> ${ch.a1}<br><b>E:</b> ${ch.a2}<br><b>R:</b> ${ch.super}</p>`;
+    card.style.setProperty('--char-color', ch.color);
+    card.style.setProperty('--char-color2', ch.color2);
+    card.innerHTML=`
+      <h3><span class="dot" style="color:${ch.color};background:${ch.color}"></span>${ch.name}</h3>
+      <div class="pillRow"><span class="pill">${d.weapon}</span><span class="pill">${d.difficulty}</span></div>
+      <p class="small">${d.style}<br><b>Q:</b> ${ch.a1} · <b>E:</b> ${ch.a2} · <b>R:</b> ${ch.super}</p>`;
     card.onclick=()=>selectOnlineChar(ch.id);
     root.appendChild(card);
   }
