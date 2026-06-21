@@ -110,6 +110,43 @@
   .disabledBtn{filter:grayscale(.7) brightness(.65);pointer-events:none;}
   @media (pointer:coarse), (max-width:800px){.lobbyShell{grid-template-columns:1fr}.onlineBox{grid-template-columns:1fr}.onlineCards{max-height:36vh}.roomCodeBig{font-size:26px}.playerName{max-width:130px}.detailLayout{grid-template-columns:1fr}.abilityGrid{grid-template-columns:1fr}.menuGrid{grid-template-columns:1fr}}
   @media (pointer:coarse), (max-width:800px){#mobileControls{display:block}.hint{display:none}.hudTop{top:8px;left:8px;right:8px;grid-template-columns:1fr 84px 1fr;gap:6px}.fighterHUD{padding:7px}.timerBox{min-width:84px;font-size:13px}.coolBox{width:28px;height:20px}.pauseBtn{top:78px;right:10px}.cards{grid-template-columns:repeat(auto-fit,minmax(148px,1fr));}.card{min-height:158px}}
+
+
+  /* Public-test patch: character select now behaves like an app layout rather than a tall page. */
+  #selectScreen{align-items:stretch;justify-content:center;padding:14px;background:linear-gradient(180deg,rgba(3,5,15,.88),rgba(3,5,15,.97));}
+  #selectScreen .selectPanel{width:min(1280px,98vw);max-height:calc(100dvh - 28px);overflow:hidden;display:flex;flex-direction:column;padding:18px;background:linear-gradient(180deg,rgba(11,18,38,.98),rgba(7,12,27,.985));border-color:rgba(115,247,255,.38);}
+  #selectScreen .selectHeader{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;margin-bottom:12px;flex:0 0 auto;}
+  #selectScreen .selectHeader h2{margin:0 0 4px;line-height:1.05;}
+  #selectScreen .selectHeader p{margin:0;max-width:760px;color:#b8c8e8;}
+  #selectScreen .selectActions{justify-content:flex-end;align-items:center;gap:10px;}
+  #selectScreen .selectActions button{padding:10px 14px;min-height:44px;white-space:nowrap;}
+  #selectScreen .detailLayout{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(420px,1.22fr) minmax(360px,.88fr);gap:14px;margin-top:0;}
+  #selectScreen #charCards.cards{margin-top:0;min-height:0;overflow:auto;padding:4px 6px 8px 2px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));align-content:start;scrollbar-color:rgba(115,247,255,.55) rgba(255,255,255,.06);}
+  #selectScreen .card{min-height:198px;background:linear-gradient(180deg,rgba(17,31,62,.94),rgba(8,14,31,.96));border-color:rgba(255,255,255,.18);box-shadow:inset 0 0 28px rgba(115,247,255,.035);}
+  #selectScreen .card h3{font-size:19px;line-height:1.08;color:#f3f8ff;}
+  #selectScreen .card .small{font-size:12.5px;color:#d4e4ff;line-height:1.35;}
+  #selectScreen .card p.small{min-height:54px;color:#e1ecff;}
+  #selectScreen .detailPanel{min-height:0;overflow:auto;background:linear-gradient(180deg,rgba(13,25,50,.96),rgba(5,11,24,.98));border-color:rgba(115,247,255,.30);box-shadow:inset 0 0 36px rgba(115,247,255,.045);}
+  #selectScreen .detailPanel h3{font-size:22px;color:#f8fbff;}
+  #selectScreen .detailPanel .small{font-size:13px;color:#d7e6ff;}
+  #selectScreen .pill{color:#f1f6ff;border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.09);}
+  #selectScreen .abilityBox{font-size:12.5px;background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.18);}
+  #selectScreen #showcaseCanvas{height:172px;max-height:24vh;margin:10px 0 4px;background:radial-gradient(circle at 45% 42%,rgba(115,247,255,.16),rgba(0,0,0,.35));}
+  #selectScreen .miniStats{font-size:12px;color:#dceaff;}
+  #selectScreen .barMini{background:rgba(255,255,255,.16);}
+  @media (max-width:980px){
+    #selectScreen{padding:8px;align-items:flex-start;overflow:auto;}
+    #selectScreen .selectPanel{max-height:none;min-height:calc(100dvh - 16px);overflow:visible;padding:14px;}
+    #selectScreen .selectHeader{grid-template-columns:1fr;gap:10px;}
+    #selectScreen .selectActions{justify-content:flex-start;}
+    #selectScreen .selectActions button{flex:1 1 150px;white-space:normal;}
+    #selectScreen .detailLayout{display:flex;flex-direction:column;overflow:visible;}
+    #selectScreen .detailPanel{order:-1;max-height:none;}
+    #selectScreen #charCards.cards{overflow:visible;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));padding:0;}
+    #selectScreen .card{min-height:178px;}
+    #selectScreen #showcaseCanvas{height:138px;}
+  }
+
 </style>
 </head>
 <body>
@@ -147,7 +184,7 @@
       <div class="tutorialCard"><h3>1. Move and bounce</h3><p class="small">A/D or arrows steer. W/Space jumps. Your best control comes from pressing movement near wall/floor impacts to redirect the next bounce.</p></div>
       <div class="tutorialCard"><h3>2. Aim and attack</h3><p class="small">Mouse or right touch pad aims. Left-click / Atk creates an active weapon hit with bonus damage and priority. Melee weapons also have passive collision damage.</p></div>
       <div class="tutorialCard"><h3>3. Parry and block</h3><p class="small">Right-click or Shift. Perfect timing gives recoil, sparks, hitstop, super meter, and a punish window. Late block reduces damage. Bad timing leaves recovery.</p></div>
-      <div class="tutorialCard"><h3>4. Weapon clashes</h3><p class="small">Melee weapons, hands, staffs, spears, axes, hammers, and some projectiles can collide. Clashes knock both fighters back and create black/white impact frames.</p></div>
+      <div class="tutorialCard"><h3>4. Weapon clashes</h3><p class="small">Melee weapons, hands, staffs, spears, axes, hammers, and some projectiles can collide. Idle/passive weapons do not erase projectiles; active attacks, blocks, and perfect parries are required.</p></div>
       <div class="tutorialCard"><h3>5. Abilities and supers</h3><p class="small">Q and E are character abilities. R spends a full super meter. Supers charge from time, movement, hits, parries, and combat pressure, but no longer instantly snowball.</p></div>
       <div class="tutorialCard"><h3>6. Online rooms</h3><p class="small">Create or join a room, copy the invite link, choose 1v1 or Free For All, pick a fighter, then ready up. The host simulates the match for small Render-friendly play.</p></div>
       <div class="tutorialCard"><h3>7. Mobile controls</h3><p class="small">Left stick steers, right pad aims, buttons trigger Jump, Attack, Parry, Q, E, and R. Lower VFX and shake in Settings on older phones.</p></div>
@@ -275,13 +312,13 @@
 </div>
 
 <div id="selectScreen" class="screen hidden">
-  <div class="panel">
-    <div class="row space">
+  <div class="panel selectPanel">
+    <div class="row space selectHeader">
       <div>
         <h2>Choose Your Fighter</h2>
         <p>Opponent is random unless you select one. Every fighter has strengths, cooldowns, recovery, and readable weaknesses.</p>
       </div>
-      <div class="row">
+      <div class="row selectActions">
         <button id="selectBackBtn" class="secondary">Back</button>
         <button id="randomOpponentBtn" class="secondary">Opponent: Random</button>
         <button id="startBtn">Start Fight</button>
@@ -453,7 +490,7 @@ const CHAR_BY_ID = Object.fromEntries(CHARS.map(c=>[c.id,c]));
 const CHAR_DETAILS = {
   stasis:{weapon:'Delayed knives',style:'Setup zoner / parry punisher',passive:'Knives hold briefly before firing in their stored direction.',strength:'Controls space and punishes predictable approaches.',difficulty:'Hard'},
   monkey:{weapon:'Full staff collider',style:'Agile mid-range trickster',passive:'Staff grows during vault pressure.',strength:'Great reach, bounce pressure, and clone confusion.',difficulty:'Medium'},
-  magia:{weapon:'Homing heart orbs',style:'Fragile trap caster',passive:'Projectiles can be blocked by weapon timing.',strength:'Safe pressure, rune traps, and nova control.',difficulty:'Medium'},
+  magia:{weapon:'Homing heart orbs',style:'Fragile trap caster',passive:'Hearts can be stopped by active parries, blocks, or weapon attacks—not idle weapons.',strength:'Safe pressure, rune traps, and nova control.',difficulty:'Medium'},
   sword:{weapon:'Long sword',style:'Precision burst duelist',passive:'Slashes reward aimed timing over guaranteed hits.',strength:'Excellent burst and dramatic Perfect Cut lines.',difficulty:'Hard'},
   spear:{weapon:'Spear',style:'Spacing specialist',passive:'Strong tip range, awkward close angles.',strength:'Reliable reach and defensive shield windows.',difficulty:'Medium'},
   katana:{weapon:'Katana',style:'Dash assassin',passive:'Five-Cut mark enables follow-up slices.',strength:'Fast engage, high tempo, stylish storm super.',difficulty:'Hard'},
@@ -1723,19 +1760,23 @@ function resolveWeaponClashes(g){
       impactBurst(mx,my,a.color||b.color||'#fff',g,false); sfx('parry',.55); return;
     }
   }
-  // Timed block/parry guard boxes can deflect projectiles even for fists, Stasis knives, and Magia's wand/orbs.
-  const guardBoxes=getFighters(g).flatMap(f=>[guardWeaponHitbox(f),passiveWeaponHitbox(f)]).filter(Boolean);
+  // Timed block/parry guard boxes can deflect projectiles, but the window is now deliberate.
+  // Perfect parries fully stop heavy projectiles; late blocks must be much more exact and may take chip on body contact.
+  const guardBoxes=getFighters(g).map(f=>guardWeaponHitbox(f)).filter(Boolean);
   for(const p of g.projectiles){
     if(p.hit || (p.type==='knife'&&!p.released)) continue;
+    const heavyProjectile=['red','blue','purple','kame','hammer','lightning','wind'].includes(p.type);
     for(const h of guardBoxes){
       if(!h || h.owner===p.owner) continue;
-      if(hitboxTouchesCircle(h,p.x,p.y,p.r+4)){
-        p.hit=true; g.clashCd=.07; h.owner.super=clamp(h.owner.super+(h.perfect?13:7),0,100);
+      const margin=h.perfect?4:-5;
+      if(hitboxTouchesCircle(h,p.x,p.y,Math.max(2,p.r+margin))){
+        if(heavyProjectile && !h.perfect) continue;
+        p.hit=true; g.clashCd=.07; h.owner.super=clamp(h.owner.super+(h.perfect?13:6),0,100);
         const hc=getHitboxCenter(h), mx=(hc.x+p.x)/2, my=(hc.y+p.y)/2;
         const fa=h.owner, fb=p.owner, dx=fb.x-fa.x, dy=fb.y-fa.y, l=len(dx,dy);
         fa.vx-=dx/l*260; fa.vy-=dy/l*260; fb.vx+=dx/l*180; fb.vy+=dy/l*180;
-        g.shake=Math.min(28,g.shake+5.8); g.hitstop=.04; g.impactFrame=.06; g.impactColor='#05050a';
-        impactBurst(mx,my,p.color||h.color,g,true); g.rings.push(new Ring(mx,my,24,.22,'#ffffff',4)); sfx('parry',.72);
+        g.shake=Math.min(28,g.shake+(h.perfect?5.8:3.8)); g.hitstop=h.perfect?.04:.026; g.impactFrame=h.perfect?.06:.04; g.impactColor='#05050a';
+        impactBurst(mx,my,p.color||h.color,g,true); g.rings.push(new Ring(mx,my,24,.22,'#ffffff',4)); sfx('parry',h.perfect?.72:.5);
         return;
       }
     }
@@ -1744,8 +1785,8 @@ function resolveWeaponClashes(g){
   for(const p of g.projectiles){
     if(p.hit || (p.type==='knife'&&!p.released)) continue;
     for(const h of g.hitboxes){
-      if(h.life<=0 || h.clashed || h.owner===p.owner) continue;
-      if(hitboxTouchesCircle(h,p.x,p.y,p.r)){
+      if(h.life<=0 || h.clashed || h.owner===p.owner || h.passive) continue;
+      if(hitboxTouchesCircle(h,p.x,p.y,Math.max(2,p.r-2))){
         h.clashed=true; p.hit=true; g.clashCd=.07;
         const hc=getHitboxCenter(h), mx=(hc.x+p.x)/2, my=(hc.y+p.y)/2;
         const fa=h.owner, fb=p.owner, dx=fb.x-fa.x, dy=fb.y-fa.y, l=len(dx,dy);
@@ -1758,14 +1799,27 @@ function resolveWeaponClashes(g){
   }
 }
 function projectileBlockedByWeapon(g,p,target){
-  // Final safety check: if a projectile overlaps the body and the defender's weapon/guard is also on it, the weapon wins.
-  const boxes=[guardWeaponHitbox(target),passiveWeaponHitbox(target),...g.hitboxes.filter(h=>h.owner===target && h.life>0)].filter(Boolean);
+  // Projectiles should be counterable but not trivial. Only active guard windows and active attack hitboxes can stop them.
+  // Passive/idle weapon colliders still clash with melee bodies, but no longer erase hearts, knives, Red/Blue/Purple, etc.
+  const activeGuard=guardWeaponHitbox(target);
+  const activeAttacks=g.hitboxes.filter(h=>h.owner===target && h.life>0 && !h.passive);
+  const boxes=[activeGuard,...activeAttacks].filter(Boolean);
+  const heavyProjectile = ['red','blue','purple','kame','hammer','lightning','wind'].includes(p.type);
   for(const h of boxes){
-    if(hitboxTouchesCircle(h,p.x,p.y,p.r+6)){
-      p.hit=true; target.super=clamp(target.super+8,0,100);
+    const perfect = !!h.perfect;
+    const activeAttack = !h.guard;
+    const margin = perfect ? 5 : (activeAttack ? 1 : -3);
+    if(hitboxTouchesCircle(h,p.x,p.y,Math.max(2,p.r+margin))){
+      // Late blocks only shave off heavy projectile pressure; perfect parry or active weapon timing fully deflects.
+      if(heavyProjectile && h.guard && !perfect){
+        target.super=clamp(target.super+5,0,100);
+        g.texts.push(new FloatText(target.x,target.y-target.r-12,'GUARD CHIP', target.char.color));
+        return false;
+      }
+      p.hit=true; target.super=clamp(target.super+(perfect?12:7),0,100);
       const hc=getHitboxCenter(h), mx=(hc.x+p.x)/2, my=(hc.y+p.y)/2;
       impactBurst(mx,my,p.color||h.color,g,true); g.rings.push(new Ring(mx,my,22,.22,'#ffffff',4));
-      g.shake=Math.min(28,g.shake+5); g.hitstop=.035; g.impactFrame=.055; g.impactColor='#05050a'; sfx('parry',.65);
+      g.shake=Math.min(28,g.shake+(perfect?6:4)); g.hitstop=perfect?.045:.028; g.impactFrame=perfect?.06:.04; g.impactColor='#05050a'; sfx('parry',perfect?.75:.55);
       return true;
     }
   }

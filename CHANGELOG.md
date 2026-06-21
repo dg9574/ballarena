@@ -1,5 +1,18 @@
 # Changelog
 
+## Hotfix: character select and projectile blocking
+
+### UI / UX
+
+- Reworked Character Select into a fixed app-style layout with an opaque panel, readable cards, visible action buttons, and independent scrolling for the roster/details columns.
+- Improved desktop and mobile responsiveness so the showcase panel no longer visually washes out the header or traps the player at the bottom of a tall page.
+
+### Combat balance
+
+- Projectiles are no longer erased by idle/passive weapon colliders.
+- Active attacks, active block/parry windows, and precise weapon timing can still stop projectiles.
+- Heavy projectiles now require a perfect parry or active weapon contact for a full deflect; late blocking causes guard pressure instead of trivial full denial.
+
 ## Release public-test update
 
 ### UI / UX
