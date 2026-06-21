@@ -89,3 +89,11 @@
 - Reworked Samurai E into a reliable recorded-path rewind: a clear return point is shown, a path is drawn, E can trigger early return, and automatic return occurs after the timer.
 - Reduced default camera shake from 75% to 30%, capped maximum shake, increased shake decay, and reduced applied shake amplitude.
 - Recolored and enlarged health bars with high-contrast HP text and dynamic green/yellow/red remaining-health colors.
+## UI Finisher Screen Update
+
+- Added a cinematic animated victory/defeat screen with League-style final-result presentation.
+- Captured the actual killing hit from combat resolution and carried it into duel and FFA result screens.
+- Result screen now shows finisher, eliminated fighter, move/source, damage amount, and final HP swing.
+- Synchronized finisher data through multiplayer host state packets so guests see the same end result.
+- Added a decision fallback for time-limit endings where no killing blow exists.
+

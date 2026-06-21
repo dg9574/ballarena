@@ -133,3 +133,8 @@ Known limitations:
 - Host advantage can exist because the host simulates the game.
 - Free Render instances may sleep when idle; the first visitor after sleep can experience a cold start.
 - No persistent accounts, matchmaking queue, leaderboard, or server-side anti-cheat is included.
+
+## Cinematic Finish Screen
+
+The end-of-match flow now records the hit that reduces a fighter to zero HP and presents it in a full-screen animated victory/defeat scene. The result screen shows the finisher, eliminated fighter, move/source, damage, and final HP swing. Time-limit results fall back to a clear decision screen when no killing hit exists.
+
