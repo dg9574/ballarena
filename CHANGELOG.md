@@ -1,5 +1,23 @@
 # Changelog
 
+## Warp / Archer and death-sequence update
+
+### Combat flow
+
+- Added a delayed KO breakdown before the result screen: the final lethal hit now leaves the losing ball visible, broken down, falling, splatting, and settling before the animated Victory/Defeat overlay appears.
+- Preserved finisher tracking so the result screen still names the player, victim, move, damage, and HP swing after the visible death sequence.
+- Nerfed Lance's Q/E/R pressure loop by reducing poke damage, shield duration, dash speed, hit width, reach, damage, and knockback while keeping the jousting identity intact.
+
+### New fighters
+
+- Added **Warp**, a portal-based cartoon fighter with double-cast Twin Portals, a blue floaty Drift Blast, and a close-range Portal Loop ultimate that runs a multi-second two-portal damage animation.
+- Added **Archer**, a ranged bow fighter with arrow basic attacks, mouse-aimed Grappling Hook mobility, Explosive Arrow, and Arrow Barrage super.
+
+### Visuals / networking
+
+- Added portal, water blast, arrow, explosive arrow, grapple, and KO splat visuals.
+- Added portal/death visual state packing so multiplayer clients receive the new end-of-match and portal effects from the host.
+
 ## Release UI overhaul - public-test polish
 
 ### UI / UX

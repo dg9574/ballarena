@@ -148,3 +148,13 @@ This build adds two new fighters and updates several existing kits:
 - **Axiom**: Red, Blue, and Purple abilities are now dodge-checks that cannot be blocked, parried, or swatted by weapons.
 - **Unarmed**: E is now a true passive growth effect rather than an activated ability.
 - **Brute**: Berserk lifesteal is stronger, and E now locks into an actual axe spin that ignores mouse aim changes until the spin finishes.
+
+## Warp / Archer and Death Sequence Update
+
+This build expands the roster and changes match endings so the final hit remains visible in the arena before the cinematic result screen appears.
+
+- **Lance nerf**: Lance keeps his long poke identity, but the Q + E shield/dash loop has reduced damage, knockback, shield uptime, dash speed, and reach so it no longer deletes opponents by repeatedly running into them.
+- **Death breakdown**: lethal hits now trigger an in-arena KO breakdown first. The defeated ball shatters, falls, splats on the floor, stops bouncing, and only then transitions into the animated victory/defeat screen.
+- **Warp**: portal trickster with double-cast Twin Portals that either fighter can use, a blue water-like Drift Blast, and a close-range Portal Loop super that throws the enemy through two facing portals for several seconds of cinematic damage.
+- **Archer**: ranged sharpshooter whose basic attack fires arrows. Q is a mouse-aimed grappling hook, E fires an explosive arrow, and R launches a barrage of arrows.
+
