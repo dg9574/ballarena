@@ -1,5 +1,59 @@
 # Changelog
 
+## Multiplayer release-readiness update
+
+### Server-authoritative multiplayer
+
+- Replaced host-authoritative WebSocket relay with an authoritative server match engine for public testing.
+- Added explicit room phases: `lobby`, `character_select`, `countdown`, `playing`, `round_over`, `rematch_wait`, `returning_to_lobby`, and `closed`.
+- Server now owns room lifecycle, host assignment, player roster, readiness, countdown, match timer, HP, cooldowns, projectile/hit validation, winner selection, and match reset.
+- Clients now send inputs/intents only; client-reported damage, HP, cooldowns, positions, winners, and full match state are rejected.
+- Added canonical 1920×1080 arena coordinates on the server and client letterboxing so viewport size no longer changes multiplayer physics.
+- Added fixed-rate server snapshots for duel and FFA.
+- Added protocol version checks and structured room/full/invalid/old-version/permission errors.
+
+### Lobby, rematch, and lifecycle
+
+- Server-generated room codes for new rooms.
+- Host-only mode changes before match start.
+- Ready/start validation for 1v1 and FFA.
+- Clear rematch consent tracking with waiting-for-opponent state.
+- All-player rematch acceptance cleanly resets and restarts countdown.
+- Return-to-lobby now clears match state, timers, projectiles, hitboxes, cooldowns, death/result state, ready flags, and rematch flags.
+- Leave-room and empty-room cleanup now remove stale state and notify remaining players.
+- Stale rooms expire automatically.
+
+### Disconnects and reconnects
+
+- Added session IDs and reconnect tokens.
+- Added reconnect handling that restores the player when the room/session/token are still valid.
+- Added short server-side disconnect hold during active matches.
+- Expired disconnect windows resolve to opponent win or safe lobby return.
+- Host migration is supported in lobby/character-select; active match host loss is handled by reconnect hold/forfeit instead of allowing a corrupt match.
+
+### Pause and UX
+
+- Multiplayer pause no longer freezes simulation or desyncs the opponent.
+- Added local-only multiplayer match menu with Resume, Return to Lobby, Settings, and Leave Match.
+- Updated online status text for waiting player, countdown, round over, rematch wait, reconnect hold, return-to-lobby, opponent leave, and room-close cases.
+
+### Security / anti-cheat
+
+- Added message and input rate limiting.
+- Added numeric clamps, character whitelist, username/room-code sanitization, and phase-based action validation.
+- Added explicit rejection of untrusted client state messages.
+- Added no-secrets-in-client/code-protection documentation.
+- Added casual context-menu/source-view shortcut deterrents while documenting that browser-delivered code cannot be fully hidden.
+
+### Validation
+
+- Verified `node --check server.js`.
+- Verified extracted client JavaScript syntax with `node --check`.
+- Verified local server startup and `/health`.
+- Verified WebSocket create-room, join-room, 1v1 start, FFA start, authoritative snapshots, rematch waiting, rematch acceptance, return-to-lobby, disconnect notification, and leave cleanup with Node WebSocket clients.
+- Smoke-checked canonical viewport scaling logic for 1920×1080, 1366×768, 2560×1080, and narrow/mobile-style sizes.
+
+
 ## Viking balance, bot difficulty, and AI fighter update
 
 ### Balance

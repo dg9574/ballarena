@@ -1,12 +1,13 @@
 {
   "name": "ball-clash-arena",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
-  "description": "Ball Clash Arena public-test HTML5 arena fighter with small-room WebSocket multiplayer for Render.",
+  "description": "Ball Clash Arena public-test HTML5 arena fighter with server-authoritative WebSocket multiplayer for Render.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js"
+    "check": "node --check server.js",
+    "check:server": "node --check server.js"
   },
   "engines": {
     "node": ">=18"

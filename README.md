@@ -1,30 +1,27 @@
 # Ball Clash Arena
 
-Ball Clash Arena is a browser-based physics arena fighter. Players control weaponized balls that bounce through a neon arena, clash weapons, parry/block, use character abilities, and charge cinematic supers.
+Ball Clash Arena is a browser-based physics arena fighter. Players control weaponized balls in a neon arena, clash weapons, parry/block, use character abilities, and charge supers.
 
-This release is designed to be dropped into a GitHub repository and deployed on Render as a small/free Node web service. It uses one HTML5 Canvas client and a zero-dependency Node WebSocket room server.
+This project is deployable as a GitHub + Render Node web service. It uses a single HTML5 Canvas client and a zero-dependency Node HTTP/WebSocket server.
+
+## Release status
+
+This build moves online multiplayer from host-authoritative relay to server-authoritative public-test netcode. The server now owns room lifecycle, match phases, canonical arena coordinates, match simulation, HP, cooldowns, projectiles, hit validation, winner selection, rematch state, reconnect windows, and cleanup. Clients send inputs/intents only and render server snapshots.
+
+Single-player remains local in the browser and keeps the existing roster, UI, CPU play, particles, abilities, supers, and settings.
 
 ## File structure
 
 ```text
-ball-clash-arena-render/
-├── index.html                  # Main game client, UI, Canvas renderer, gameplay logic
+ball-clash-arena/
+├── index.html                  # Main game client, UI, Canvas renderer, local single-player
 ├── ball_clash_arena_v10.html   # Mirror of index.html for direct/local testing
-├── server.js                   # Node HTTP + WebSocket room server, no npm packages
+├── server.js                   # Node HTTP + authoritative WebSocket multiplayer server
 ├── package.json                # Node metadata and start script
 ├── render.yaml                 # Render web service config
-├── README.md                   # Setup/deploy/play guide
-├── CHANGELOG.md                # Release notes
-└── .gitignore
+├── README.md                   # Setup, architecture, deployment, controls, security notes
+└── CHANGELOG.md                # Release notes
 ```
-
-
-## Latest gameplay additions
-
-- Single-player now has bot difficulty from **Easy** to **Master**. **Normal** preserves the previous CPU behavior.
-- **Viking** was rebalanced with lower health, lower damage/knockback, and Valhalla Rebirth can trigger only once per round.
-- **Archer** now uses stable non-spinning arrow projectiles and a smaller in-hand bow arrow.
-- Added **AI**, a digital prediction fighter with Predictive Dash, Data Lock, and System Override.
 
 ## Run locally
 
@@ -34,7 +31,7 @@ Requires Node 18 or newer.
 npm start
 ```
 
-Then open:
+Open:
 
 ```text
 http://localhost:8080
@@ -46,52 +43,132 @@ Health check:
 http://localhost:8080/health
 ```
 
+Version endpoint:
+
+```text
+http://localhost:8080/version
+```
+
 ## Deploy on Render
 
-Create a **Web Service** from your GitHub repository.
+Create a Render **Web Service** from your GitHub repository.
 
 Recommended settings:
 
 ```text
 Environment: Node
-Region: Frankfurt, Germany for Europe-to-Europe latency
-Build command: leave blank or use npm install
-Start command: node server.js
-Plan: Free or small paid plan
+Build command: npm install
+Start command: npm start
+Region: choose the region closest to players
+Plan: Free for testing, paid/small instance for better cold-start behavior
 ```
 
-The included `render.yaml` uses:
+The included `render.yaml` starts the service with:
 
 ```yaml
 startCommand: "node server.js"
 ```
 
-No paid database, Redis instance, external asset host, or native dependency is required.
+No paid database, Redis instance, native dependency, or external asset host is required.
 
-## How to invite friends
+## Multiplayer architecture
 
-1. Open the deployed Render URL.
-2. Choose **Multiplayer**.
-3. Enter a username.
-4. Choose **Duel 1v1** or **Free For All 2-6 players**.
-5. Click **Create Room**.
-6. Copy the invitation link from the lobby and send it to friends.
-7. Everyone picks a fighter and clicks **Ready**.
+### Protocol
 
-Invite links include the room code and mode, for example `?room=ABC123&mode=ffa`. The lobby also accepts pasted invite links.
+- WebSocket endpoint: `/ws`
+- Current protocol version: `2`
+- Clients must include `protocol: 2` in gameplay messages.
+- Old/malformed messages are rejected safely and do not mutate room or match state.
 
-## Multiplayer room model
+### Room and match state machine
 
-- The Node server owns room membership, ready state, mode selection, host assignment, disconnect handling, and ping/pong.
-- The first player in the room is the host.
-- The host simulates the match and sends compact state snapshots.
-- Other players send inputs to the host through the server.
-- This host-authoritative model is intentionally simple and Render-free friendly.
-- Duel rooms allow exactly 2 players.
-- FFA rooms allow 2 to 6 players.
-- If a player leaves, the room returns to lobby-safe state and ready flags reset.
+Rooms use explicit phases:
 
-For best multiplayer feel, use the same Render region as the players. For Europe-to-Europe testing, Frankfurt is the intended region.
+```text
+lobby
+character_select
+countdown
+playing
+round_over
+rematch_wait
+returning_to_lobby
+closed
+```
+
+Rules enforced by the server:
+
+- A room has only one active match state at a time.
+- Duel rooms require exactly 2 players.
+- FFA rooms support 2 to 6 players.
+- The host can change mode only before the match starts.
+- Non-hosts cannot force mode changes or starts.
+- Match start requires valid connected players and everyone ready.
+- Rematch requires consent from all required players.
+- One rematch request shows a clear waiting state.
+- Return to lobby clears match state, timers, projectiles, hitboxes, cooldowns, ready flags, and rematch flags.
+- Empty and stale rooms are deleted.
+
+### Server authority
+
+The server owns all trust-sensitive multiplayer state:
+
+- room code, host, roster, readiness, phase, and lifecycle
+- canonical arena dimensions and physics coordinates
+- player positions, velocity, HP, super meter, alive/dead state
+- cooldown validation, parry/block windows, ability validation, projectile hits, and knockback
+- countdown, match timer, round-over result, winner/loser, and rematch state
+- input rate limits, malformed message rejection, permission checks, and reconnect tokens
+
+Clients send only input snapshots such as movement, jump, aim, attack, parry, Q/E, and super. Clients do **not** send trusted HP, damage, cooldowns, final positions, winners, or match results.
+
+## Arena scaling
+
+Multiplayer gameplay uses a canonical logical arena:
+
+```text
+1920 x 1080 world
+arena rectangle: x=120, y=120, w=1680, h=840, floor=960
+```
+
+The client letterboxes/scales this world into the local canvas. Viewport size affects presentation only, not physics, hitboxes, projectiles, cooldowns, or collisions. HUD and menus remain responsive.
+
+Smoke-tested viewport targets:
+
+- 1920×1080 desktop
+- 1366×768 laptop
+- 2560×1080 ultrawide
+- narrow/mobile-style viewport
+
+## Multiplayer flow
+
+1. Open **Multiplayer**.
+2. Enter a username.
+3. Select **Duel 1v1** or **Free For All**.
+4. Click **Create Room**. The server generates the room code.
+5. Copy the invite link and send it to friends.
+6. Everyone chooses a fighter and clicks **Ready**.
+7. The server starts a countdown, then begins the authoritative match.
+
+After a round:
+
+- **Rematch**: requests a rematch. If the opponent has not accepted yet, the UI shows waiting-for-opponent.
+- **Return to Lobby**: resets the room to character select and clears old match state.
+- **Leave Room / Main Menu**: removes the player and notifies others.
+
+Disconnects during a match trigger a short server-side reconnect hold. A reconnecting player can resume using the locally stored session ID and reconnect token. If the reconnect window expires, the connected opponent wins by disconnect or the room returns safely to lobby.
+
+## Pause behavior
+
+Single-player can still pause locally.
+
+Multiplayer cannot be paused by one client. Pressing Escape/Pause opens a local-only match menu with:
+
+- Resume
+- Return to Lobby
+- Settings
+- Leave Match
+
+The server simulation continues unless the server itself is temporarily holding the match for a disconnect/reconnect window.
 
 ## Controls
 
@@ -106,10 +183,10 @@ Parry / block: right mouse button or Shift
 Q ability: Q
 E ability: E
 Super: R
-Pause: Esc
+Pause/menu: Esc
 ```
 
-Mobile:
+Mobile/tablet:
 
 ```text
 Left stick: movement
@@ -117,57 +194,71 @@ Right pad: aim
 Buttons: Jump, Attack, Parry, Q, E, R
 ```
 
-## Current game modes
+## Browser code visibility and source protection limits
 
-- **Single Player**: character select, optional opponent select/random, CPU opponent.
-- **Multiplayer 1v1**: two-player host-authoritative duel.
-- **Multiplayer FFA**: 2 to 6 players, spawned around the arena, with names and health shown.
+Browser-delivered JavaScript, HTML, CSS, and assets can be viewed by determined users through DevTools, browser caches, network tools, or saved page files. Right-click blocking and shortcut blocking are only casual deterrents; they do not provide real protection and should not be treated as DRM.
 
-## Public-test notes
+This release handles that reality by:
 
-This build includes the release-ready UI flow, tutorial, settings, richer character selection, host-authoritative rooms, ping display, invite link support, disconnect recovery, capped VFX arrays, delayed speed ramp, improved parry/block/clash readability, and character rework tuning.
+- moving multiplayer authority to the server
+- keeping secrets out of client code
+- rejecting client-reported HP, damage, cooldowns, and winners
+- validating all message types, phases, mode permissions, characters, room codes, usernames, numeric values, and input rates
+- using session IDs and reconnect tokens for reconnects
+- disabling casual context-menu/source-view shortcuts without claiming full protection
+- documenting that public browser code cannot be fully hidden
 
-UI notes for this release:
+For stronger asset/code protection, use private source control, server-side authority for competitive state, and legal/licensing controls. Do not put API keys, passwords, paid-service secrets, or authoritative anti-cheat secrets in the client.
 
-- Character Select is now a full-screen, opaque arcade interface with independent roster/details scrolling, responsive fighter cards, selected/opponent states, and no accidental canvas bleed-through.
-- Single Player and Multiplayer use the same fighter-card visual language for names, avatars, weapon/difficulty chips, playstyle, and Q/E/R move chips.
-- Menus, Tutorial, Settings, Credits/Controls, lobby panels, buttons, inputs, and status pills share a dark glass/neon design system.
-- In-game HP bars use high-contrast green/yellow/red remaining-health gradients with clear HP numbers.
-- Camera shake defaults to 25% and is labeled as conservative in Settings; VFX, ping, sound, and touch controls remain configurable.
+## Anti-cheat protections in this build
 
-Known limitations:
+Implemented for public testing:
 
-- The multiplayer model prioritizes small friend-group matches over massive scaling.
-- Host advantage can exist because the host simulates the game.
-- Free Render instances may sleep when idle; the first visitor after sleep can experience a cold start.
-- No persistent accounts, matchmaking queue, leaderboard, or server-side anti-cheat is included.
+- server-side room/match state machine
+- server-side HP, cooldown, hit, projectile, and winner authority
+- input-only client protocol
+- input/message rate limiting
+- malformed JSON/frame size handling
+- room/full/old-version/permission errors
+- host-only pre-match mode control
+- character selection whitelist
+- username and room-code sanitization
+- canonical arena clamp and server-side impossible-position prevention
+- reconnect token/session handling
+- rejection of client `state`, `damage`, `winner`, `hp`, and `cooldown` messages
 
-## Cinematic Finish Screen
+Not included:
 
-The end-of-match flow now records the hit that reduces a fighter to zero HP and presents it in a full-screen animated victory/defeat scene. The result screen shows the finisher, eliminated fighter, move/source, damage, and final HP swing. Time-limit results fall back to a clear decision screen when no killing hit exists.
+- persistent accounts
+- matchmaking queue
+- rankings/leaderboards
+- replay review tooling
+- commercial-grade cheat detection
+- multi-instance room sharing across several Render instances
 
+## Render/scaling notes
 
-## Character Balance Update
+This server keeps room state in process memory. It is suitable for one Render web service instance and public testing. Horizontal scaling across multiple instances would require shared room state or sticky sessions, which are intentionally not included to keep deployment free/simple.
 
-This build adds two new fighters and updates several existing kits:
+Free Render instances may sleep when idle. First visit after sleep can be slow.
 
-- **Magician**: rune/letter/root caster with Rune Root, Letter Blast, glyph projectiles, and a full-screen **Grand Rune Cataclysm** ultimate effect.
-- **Viking**: shield-and-axe bruiser with visible shield + axe, Shield Rush knockback/bounce pressure, Axe Smack, and **Valhalla Rebirth**. Viking has no normal manual R attack; when super is fully charged, lethal damage automatically revives him at half HP.
-- **Axiom**: Red, Blue, and Purple abilities are now dodge-checks that cannot be blocked, parried, or swatted by weapons.
-- **Unarmed**: E is now a true passive growth effect rather than an activated ability.
-- **Brute**: Berserk lifesteal is stronger, and E now locks into an actual axe spin that ignores mouse aim changes until the spin finishes.
+## Testing performed for this release
 
-## Warp / Archer and Death Sequence Update
+- `node --check server.js`
+- extracted client JavaScript syntax check with `node --check`
+- local server startup on a test port
+- `/health` response check
+- WebSocket create-room test
+- WebSocket join-room test
+- multiplayer 1v1 start and authoritative snapshot test
+- multiplayer FFA start and authoritative snapshot test
+- rematch waiting test
+- rematch all-accepted restart test
+- return-to-lobby test
+- leave/disconnect cleanup notification test
+- viewport scaling smoke check for 1920×1080, 1366×768, 2560×1080, and narrow/mobile dimensions
 
-This build expands the roster and changes match endings so the final hit remains visible in the arena before the cinematic result screen appears.
+Manual browser smoke note:
 
-- **Lance nerf**: Lance keeps his long poke identity, but the Q + E shield/dash loop has reduced damage, knockback, shield uptime, dash speed, and reach so it no longer deletes opponents by repeatedly running into them.
-- **Death breakdown**: lethal hits now trigger an in-arena KO breakdown first. The defeated ball shatters, falls, splats on the floor, stops bouncing, and only then transitions into the animated victory/defeat screen.
-- **Warp**: portal trickster with double-cast Twin Portals that either fighter can use, a blue water-like Drift Blast, and a close-range Portal Loop super that throws the enemy through two facing portals for several seconds of cinematic damage.
-- **Archer**: ranged sharpshooter whose basic attack fires arrows. Q is a mouse-aimed grappling hook, E fires an explosive arrow, and R launches a barrage of arrows.
-
-
-### Latest balance hotfix
-- AI is fully playable in single-player and multiplayer character select.
-- Viking's Valhalla Rebirth can trigger only once per round, even if he builds super again after reviving.
-- Warp's Portal Loop ultimate now deals reduced damage while keeping the full cinematic portal animation.
+- A headless Chromium smoke test was attempted in the packaging sandbox, but Chromium blocked both local HTTP and file navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`.
+- The same flows should be checked in a normal browser after upload/deploy: main menu, multiplayer setup, lobby, character select, match start, round over, rematch, return to lobby, and leave room.
