@@ -31,7 +31,7 @@ const TEST_SHORT_MATCH = process.env.BCA_TEST_SHORT_MATCH === '1';
 const DUEL_DURATION = TEST_SHORT_MATCH ? 4 : 99;
 const FFA_DURATION = TEST_SHORT_MATCH ? 4 : 125;
 const TICK_RATE = 60;
-const SNAPSHOT_RATE = 18;
+const SNAPSHOT_RATE = 24;
 const INPUT_RATE_LIMIT = { windowMs: 1000, max: 45 };
 const MESSAGE_RATE_LIMIT = { windowMs: 1000, max: 80 };
 
@@ -484,12 +484,33 @@ function validateInput(raw, previous) {
 function receiveInput(client, msg) {
   const room = client.room ? rooms.get(client.room) : null;
   if (!room || room.phase !== PHASES.PLAYING || !room.match) return;
-  if (rateHit(client.rate.input, INPUT_RATE_LIMIT)) { client.strikes = (client.strikes || 0) + 1; if (client.strikes > 6) closeClient(client, 'input_rate_limit'); return; }
-  const input = validateInput(msg.input || msg, client.input);
-  if (input.seq && input.seq < (client.lastInputSeq || 0)) return;
+
+  // Authoritative simulation reads input from the room player record. A previous
+  // performance/refactor pass updated only the transient socket object in some
+  // paths, leaving room.players[id].input as emptyInput(); that made guests look
+  // frozen and made abilities appear inactive. Keep both records synchronized.
+  const player = room.players.get(client.id);
+  if (!player || player.left || !player.connected) return;
+
+  if (rateHit(player.rate.input, INPUT_RATE_LIMIT)) {
+    player.strikes = (player.strikes || 0) + 1;
+    if (player.strikes > 6) closeClient(player, 'input_rate_limit');
+    return;
+  }
+
+  const input = validateInput(msg.input || msg, player.input || client.input);
+  const lastSeq = player.lastInputSeq || 0;
+  if (input.seq && input.seq < lastSeq) return;
+
+  player.input = input;
+  player.lastInputSeq = input.seq || lastSeq;
+  player.lastSeen = nowMs();
+
+  // In the common case player === client. These assignments also cover reconnect
+  // and legacy compatibility paths where a socket wrapper may differ briefly.
   client.input = input;
-  client.lastInputSeq = input.seq || client.lastInputSeq || 0;
-  client.lastSeen = nowMs();
+  client.lastInputSeq = player.lastInputSeq;
+  client.lastSeen = player.lastSeen;
 }
 
 function spawnMatchPlayer(p, i, n) {

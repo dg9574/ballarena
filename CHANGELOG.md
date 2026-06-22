@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.4 - Multiplayer input hotfix
+
+- Fixed server-authoritative multiplayer input storage so the room simulation now reads each connected player's latest movement, jump, attack, parry, Q, E, and R inputs.
+- Fixed the regression where joined players appeared frozen and abilities did not activate because inputs were kept only on the transient socket object instead of the room player record used by the match tick.
+- Kept socket and room-player input state synchronized across normal play and reconnect paths.
+- Raised authoritative snapshot cadence from 18 Hz to 24 Hz to reduce visible movement stepping while keeping packets compact.
+- Added regression validation for host movement, joined-player movement, and joined-player ability activation.
+
 ## 1.3.3 - Arena readability and HUD compacting hotfix
 
 - Enlarged the gameplay camera by fitting the viewport around the playable arena plus a small world margin instead of fitting the entire 1920x1080 logical canvas.

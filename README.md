@@ -75,6 +75,10 @@ startCommand: "node server.js"
 
 No paid database, Redis instance, native dependency, or external asset host is required.
 
+### Multiplayer input hotfix note
+
+Version 1.3.4 fixes a server-authoritative input regression from the optimization/layout pass. The server now synchronizes validated socket input into the room player record that the simulation tick reads, so both host and joined players can move, jump, attack, parry, and use abilities online. Normal authoritative snapshots now run at 24 Hz for smoother visible movement.
+
 ## Multiplayer architecture
 
 ### Protocol

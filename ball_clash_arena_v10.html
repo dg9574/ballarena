@@ -3053,7 +3053,7 @@ function startOnlineMatch(msg){
   net.mode = msg.mode || net.mode || 'duel';
   net.role = msg.role || net.role || 'player';
   net.phase = msg.phase || 'countdown';
-  net.remoteInput = null; net.remoteInputs = {}; net.inputSeq = 0;
+  net.remoteInput = null; net.remoteInputs = {}; net.inputSeq = 0; PERF.lastInputSig = ''; PERF.lastInputSent = 0;
   resize(); {const c=worldCenter(); pointer.x=c.x; pointer.y=c.y;} if(game)clearGameTimers(game); game = null;
   if(net.mode === 'ffa'){
     const players = (msg.players && msg.players.length ? msg.players : net.players).filter(p=>p&&p.id);
