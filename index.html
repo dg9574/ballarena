@@ -2196,7 +2196,7 @@ function useSuper(f,g){
   const enemy=getNearestEnemy(f,g);
   if(id==='stasis'){
     f.status.silence=2.8; const canCounter=enemy.char.id==='stasis'; if(!canCounter) enemy.status.freeze=2.35; g.timeStop={owner:f,target:enemy,life:2.35,pending:[]}; g.shake=Math.min(SHAKE_CAP,g.shake+16); g.slowMo=.55;
-    for(let i=0;i<20;i++) setGameTimeout(g,()=>{if(game===g&&f.alive&&g.timeStop){const shotAim=f.aim; const base=shotAim+rand(-.38,.38); const rr=rand(45,125); const x=f.x+Math.cos(base+Math.PI)*rr+rand(-42,42), y=f.y+Math.sin(base+Math.PI)*rr+rand(-42,42); const p=pooledProjectile(f,x,y,Math.cos(shotAim)*840,Math.sin(shotAim)*840,8,5,c,'knife');p.ang=shotAim;p.storedAim=shotAim;p.delay=999;p.knifeTimer=.20;p.life=5;p.released=false;p.vx=0;p.vy=0;p.flightSpeed=760;g.projectiles.push(p);g.timeStop.pending.push(p);g.rings.push(pooledRing(x,y,6,.18,c,2));}},i*72);
+    for(let i=0;i<45;i++) setGameTimeout(g,()=>{if(game===g&&f.alive&&g.timeStop){const shotAim=f.aim; const base=shotAim+rand(-.38,.38); const rr=rand(45,125); const x=f.x+Math.cos(base+Math.PI)*rr+rand(-42,42), y=f.y+Math.sin(base+Math.PI)*rr+rand(-42,42); const p=pooledProjectile(f,x,y,Math.cos(shotAim)*840,Math.sin(shotAim)*840,8,5,c,'knife');p.ang=shotAim;p.storedAim=shotAim;p.delay=999;p.knifeTimer=.20;p.life=5;p.released=false;p.vx=0;p.vy=0;p.flightSpeed=760;g.projectiles.push(p);g.timeStop.pending.push(p);g.rings.push(pooledRing(x,y,6,.18,c,2));}},i*72);
   } else if(id==='monkey'){
     for(let i=0;i<5;i++){const aa=a+(i-2)*.28;g.clones.push(new CloneFighter(f,f.x+Math.cos(aa)*(45+i*8),f.y+Math.sin(aa)*35,aa,6.0));}g.rings.push(pooledRing(f.x,f.y,45,.45,c,5));
   } else if(id==='magician'){
