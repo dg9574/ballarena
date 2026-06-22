@@ -27,8 +27,11 @@ const ROOM_TTL_MS = 1000 * 60 * 60 * 3;
 const DISCONNECT_GRACE_MS = 15_000;
 const COUNTDOWN_MS = 3000;
 const RETURNING_MS = 900;
+const TEST_SHORT_MATCH = process.env.BCA_TEST_SHORT_MATCH === '1';
+const DUEL_DURATION = TEST_SHORT_MATCH ? 4 : 99;
+const FFA_DURATION = TEST_SHORT_MATCH ? 4 : 125;
 const TICK_RATE = 60;
-const SNAPSHOT_RATE = 20;
+const SNAPSHOT_RATE = 18;
 const INPUT_RATE_LIMIT = { windowMs: 1000, max: 45 };
 const MESSAGE_RATE_LIMIT = { windowMs: 1000, max: 80 };
 
@@ -101,23 +104,28 @@ function roleForIndex(i) { return i === 0 ? 'host' : `p${i + 1}`; }
 function maxPlayersFor(mode) { return mode === 'ffa' ? 6 : 2; }
 function minPlayersFor(mode) { return 2; }
 
-function sendFrame(sock, obj) {
-  if (!sock || sock.destroyed) return;
+function encodeFrameObject(obj) {
   const data = Buffer.from(JSON.stringify(obj));
   let header;
   if (data.length < 126) {
     header = Buffer.from([0x81, data.length]);
   } else if (data.length < 65536) {
-    header = Buffer.alloc(4);
+    header = Buffer.allocUnsafe(4);
     header[0] = 0x81; header[1] = 126;
     header.writeUInt16BE(data.length, 2);
   } else {
-    header = Buffer.alloc(10);
+    header = Buffer.allocUnsafe(10);
     header[0] = 0x81; header[1] = 127;
     header.writeBigUInt64BE(BigInt(data.length), 2);
   }
-  try { sock.write(Buffer.concat([header, data])); } catch (_) {}
+  return Buffer.concat([header, data]);
 }
+function writeFrame(sock, frame) {
+  if (!sock || sock.destroyed || !frame) return;
+  try { sock.write(frame); } catch (_) {}
+}
+function sendFrame(sock, obj) { writeFrame(sock, encodeFrameObject(obj)); }
+function sendEncoded(client, frame) { if (client && client.sock && client.connected) writeFrame(client.sock, frame); }
 function send(client, obj) { if (client && client.sock && client.connected) sendFrame(client.sock, obj); }
 function closeClient(client, code = 'closed') {
   if (!client || !client.sock || client.sock.destroyed) return;
@@ -205,7 +213,8 @@ function touch(room) { if (room) room.touchedAt = nowMs(); }
 function setPhase(room, phase) { room.phase = phase; room.seq++; touch(room); }
 function broadcast(room, obj, except = null) {
   touch(room);
-  for (const p of roomPlayers(room)) if (p !== except && p.connected) send(p, obj);
+  const frame = encodeFrameObject(obj); // one JSON stringify per broadcast, not per recipient
+  for (const p of roomPlayers(room)) if (p !== except && p.connected) sendEncoded(p, frame);
 }
 function resetReadiness(room) { for (const p of roomPlayers(room)) p.ready = false; }
 function assignRoles(room) {
@@ -511,8 +520,8 @@ function initMatch(room) {
   const fighters = players.map((p, i) => spawnMatchPlayer(p, i, players.length));
   room.match = {
     startedAt: nowMs(), lastTick: nowMs(), lastSnapshot: 0,
-    duration: room.mode === 'ffa' ? 125 : 99,
-    time: room.mode === 'ffa' ? 125 : 99,
+    duration: room.mode === 'ffa' ? FFA_DURATION : DUEL_DURATION,
+    time: room.mode === 'ffa' ? FFA_DURATION : DUEL_DURATION,
     fighters,
     projectiles: [],
     hitboxes: [],
@@ -531,50 +540,59 @@ function fighterState(f) {
     id: f.id, char: f.char, name: f.name,
     x: Math.round(f.x), y: Math.round(f.y), vx: Math.round(f.vx), vy: Math.round(f.vy),
     hp: Math.max(0, Math.round(f.hp * 10) / 10), maxHp: f.maxHp,
-    super: Math.round(f.super * 10) / 10, aim: f.aim, face: f.face,
+    super: Math.round(f.super * 10) / 10, aim: Math.round(f.aim * 100) / 100, face: Math.round(f.face * 100) / 100,
     alive: f.alive, freeze: f.freeze, slow: f.slow, guard: f.guard,
     parry: f.parryTime, block: f.blockTime, flash: f.flash,
-    a1Cd: f.a1Cd, a2Cd: f.a2Cd, attackCd: f.attackCd
+    a1Cd: Math.round(f.a1Cd * 100) / 100, a2Cd: Math.round(f.a2Cd * 100) / 100, attackCd: Math.round(f.attackCd * 100) / 100
   };
 }
 function projectileState(p) {
-  return { owner: p.owner, x: Math.round(p.x), y: Math.round(p.y), vx: Math.round(p.vx), vy: Math.round(p.vy), r: p.r, dmg: p.dmg, color: p.color, type: p.type, life: p.life, ang: p.ang, released: true, delay: 0, flightSpeed: Math.hypot(p.vx, p.vy), noWeaponBlock: false, pierce: !!p.pierce };
+  return { owner: p.owner, x: Math.round(p.x), y: Math.round(p.y), vx: Math.round(p.vx), vy: Math.round(p.vy), r: p.r, dmg: p.dmg, color: p.color, type: p.type, life: Math.round(p.life * 100) / 100, ang: Math.round(p.ang * 100) / 100, released: true, delay: 0, flightSpeed: Math.hypot(p.vx, p.vy), noWeaponBlock: false, pierce: !!p.pierce };
 }
 function hitboxState(h) {
-  return { owner: h.owner, kind: h.kind, x: h.x, y: h.y, x1: h.x1, y1: h.y1, x2: h.x2, y2: h.y2, r: h.r, width: h.width, damage: h.damage, knock: h.knock, life: h.life, max: h.max, color: h.color, heavy: !!h.heavy, moveName: h.moveName, parryable: true };
+  return { owner: h.owner, kind: h.kind, x: h.x, y: h.y, x1: h.x1, y1: h.y1, x2: h.x2, y2: h.y2, r: h.r, width: h.width, damage: h.damage, knock: h.knock, life: Math.round(h.life * 100) / 100, max: Math.round(h.max * 100) / 100, color: h.color, heavy: !!h.heavy, moveName: h.moveName, parryable: true };
 }
-function matchSnapshot(room) {
+function fillStates(src, cap, mapper) {
+  const n = Math.min(src.length, cap);
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) out[i] = mapper(src[i]);
+  return out;
+}
+function matchSnapshot(room, includeArena = false) {
   const m = room.match;
   if (!m) return null;
+  const t = nowMs();
   const base = {
     type: 'snapshot', protocol: PROTOCOL_VERSION, room: room.code, seq: m.seq, phase: room.phase,
-    mode: room.mode, serverTime: nowMs(), arena: ARENA, time: m.time,
-    countdown: room.phase === PHASES.COUNTDOWN ? Math.max(0, (room.countdownEndsAt - nowMs()) / 1000) : 0,
-    projectiles: m.projectiles.slice(0, 80).map(projectileState),
-    hitboxes: m.hitboxes.slice(0, 80).map(hitboxState),
+    mode: room.mode, serverTime: t, time: Math.round(m.time * 10) / 10,
+    countdown: room.phase === PHASES.COUNTDOWN ? Math.max(0, (room.countdownEndsAt - t) / 1000) : 0,
+    projectiles: fillStates(m.projectiles, 64, projectileState),
+    hitboxes: fillStates(m.hitboxes, 64, hitboxState),
     zones: [],
     over: [PHASES.ROUND_OVER, PHASES.REMATCH_WAIT].includes(room.phase),
     winner: m.winner,
     winnerId: m.winner,
     finisher: m.finisher,
     disconnectPause: !!m.pausedForDisconnect,
-    disconnectRemaining: m.pausedForDisconnect ? Math.max(0, m.disconnectUntil - nowMs()) : 0
+    disconnectRemaining: m.pausedForDisconnect ? Math.max(0, m.disconnectUntil - t) : 0
   };
+  if (includeArena) base.arena = ARENA;
   if (room.mode === 'duel') {
     base.p = fighterState(m.fighters[0]);
     base.c = fighterState(m.fighters[1]);
   } else {
-    base.fighters = m.fighters.map(fighterState);
+    base.fighters = fillStates(m.fighters, MAX_ROOM_PLAYERS, fighterState);
   }
   return base;
 }
+
 function broadcastSnapshot(room, force = false) {
   if (!room.match) return;
   const t = nowMs();
   if (!force && t - room.match.lastSnapshot < 1000 / SNAPSHOT_RATE) return;
   room.match.lastSnapshot = t;
   room.match.seq++;
-  const snap = matchSnapshot(room);
+  const snap = matchSnapshot(room, force);
   if (snap) broadcast(room, snap);
 }
 

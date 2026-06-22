@@ -8,6 +8,8 @@ This project is deployable as a GitHub + Render Node web service. It uses a sing
 
 This build moves online multiplayer from host-authoritative relay to server-authoritative public-test netcode. The server now owns room lifecycle, match phases, canonical arena coordinates, match simulation, HP, cooldowns, projectiles, hit validation, winner selection, rematch state, reconnect windows, and cleanup. Clients send inputs/intents only and render server snapshots.
 
+This performance update adds pooled effects, quality tiers, adaptive performance scaling, reduced DOM churn, optimized Canvas draw paths, lower network snapshot overhead, and developer profiling tools while preserving the roster, abilities, supers, UI identity, single-player, and multiplayer.
+
 Single-player remains local in the browser and keeps the existing roster, UI, CPU play, particles, abilities, supers, and settings.
 
 ## File structure
@@ -19,7 +21,9 @@ ball-clash-arena/
 ├── server.js                   # Node HTTP + authoritative WebSocket multiplayer server
 ├── package.json                # Node metadata and start script
 ├── render.yaml                 # Render web service config
+├── .gitignore                  # Local/dev files excluded from Git
 ├── README.md                   # Setup, architecture, deployment, controls, security notes
+├── PERFORMANCE_REPORT.md       # Performance audit, before/after proxy metrics, test notes
 └── CHANGELOG.md                # Release notes
 ```
 
@@ -121,6 +125,46 @@ The server owns all trust-sensitive multiplayer state:
 
 Clients send only input snapshots such as movement, jump, aim, attack, parry, Q/E, and super. Clients do **not** send trusted HP, damage, cooldowns, final positions, winners, or match results.
 
+## Performance features
+
+### Graphics quality
+
+Settings include four quality levels:
+
+- **Low**: reduced particles, debris, shadows, text effects, screen effects, portal density, trails, DPR cap, and background detail for weak CPUs/GPUs.
+- **Medium**: balanced effect density for integrated graphics and older laptops.
+- **High**: default visual quality for average modern laptops/desktops.
+- **Ultra**: highest visual density for stronger machines.
+
+Quality affects particles, debris, trails, shadows, bloom-like glow, portal visuals, death visuals, fullscreen effects, text effects, and canvas DPR cap. Gameplay math is unchanged by quality.
+
+### Adaptive Performance
+
+Adaptive Performance can be enabled in Settings. It monitors frame time/FPS and dynamically scales expensive effects down when performance drops, then restores visual density gradually when frame pacing recovers. It does not change hitboxes, HP, cooldowns, physics, damage, winners, or server authority.
+
+### Developer profiler
+
+The Developer profiler toggle shows an overlay with:
+
+- FPS and average frame time
+- update and render time
+- active particles, projectiles, effects, and hitboxes
+- network ping
+- current quality/adaptive scale
+- pool sizes
+
+Leave it disabled for normal production play.
+
+### Memory and garbage collection
+
+The client now pools particles, projectiles, hitboxes, rings, beams, slash arcs, floating text, zones, and telegraphs. Hot cleanup loops use in-place compaction instead of allocating new arrays. Match-owned ability timers are cleared when leaving, returning to lobby, or rematching, which reduces long-session leaks and stale delayed effects.
+
+### Network efficiency
+
+The client sends changed/throttled input intents instead of full trusted state. The server broadcasts snapshots at a fixed rate, encodes each room broadcast once, caps projectile/hitbox snapshot size, rounds non-critical numeric values, and avoids resending arena metadata in every normal snapshot.
+
+See `PERFORMANCE_REPORT.md` for before/after proxy metrics and automated test results.
+
 ## Arena scaling
 
 Multiplayer gameplay uses a canonical logical arena:
@@ -132,7 +176,7 @@ arena rectangle: x=120, y=120, w=1680, h=840, floor=960
 
 The client letterboxes/scales this world into the local canvas. Viewport size affects presentation only, not physics, hitboxes, projectiles, cooldowns, or collisions. HUD and menus remain responsive.
 
-Smoke-tested viewport targets:
+Viewport scaling targets reviewed in static/responsive logic and intended for manual browser smoke testing:
 
 - 1920×1080 desktop
 - 1366×768 laptop
@@ -244,21 +288,27 @@ Free Render instances may sleep when idle. First visit after sleep can be slow.
 
 ## Testing performed for this release
 
+- `npm install --ignore-scripts --no-audit --no-fund`
 - `node --check server.js`
 - extracted client JavaScript syntax check with `node --check`
+- `npm run check:all`
 - local server startup on a test port
 - `/health` response check
 - WebSocket create-room test
 - WebSocket join-room test
 - multiplayer 1v1 start and authoritative snapshot test
 - multiplayer FFA start and authoritative snapshot test
+- long-session combat/network stability stress test
+- particle stress path through sustained combat input
+- projectile stress path through sustained combat input
+- portal/Warp stress path through Warp selection and ability input
+- ultimate spam stress path through repeated super intents
 - rematch waiting test
 - rematch all-accepted restart test
 - return-to-lobby test
-- leave/disconnect cleanup notification test
-- viewport scaling smoke check for 1920×1080, 1366×768, 2560×1080, and narrow/mobile dimensions
+- leave-room cleanup test
+- disconnect cleanup test
+- low-end/adaptive-performance static smoke check
+- viewport scaling logic check for 1920×1080, 1366×768, 2560×1080, and narrow/mobile-style dimensions
 
-Manual browser smoke note:
-
-- A headless Chromium smoke test was attempted in the packaging sandbox, but Chromium blocked both local HTTP and file navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`.
-- The same flows should be checked in a normal browser after upload/deploy: main menu, multiplayer setup, lobby, character select, match start, round over, rematch, return to lobby, and leave room.
+Headless Chromium screenshot/profile execution was attempted but timed out in this sandbox with Chromium process-isolation errors. Use the in-game Developer profiler for real browser FPS/frame-time validation on target devices.

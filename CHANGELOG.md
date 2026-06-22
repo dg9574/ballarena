@@ -1,5 +1,60 @@
 # Changelog
 
+## Performance and scalability release update
+
+### Client frame pacing and rendering
+
+- Added graphics quality settings: Low, Medium, High, and Ultra.
+- Added Adaptive Performance mode that dynamically trims expensive effects when FPS/frame time drops and restores density gradually when performance recovers.
+- Added a Developer profiler overlay for FPS, frame time, update time, render time, active particles, projectiles, effects, hitboxes, ping, adaptive scale, and pool sizes.
+- Added object pooling for particles, projectiles, hitboxes, rings, beams, slash arcs, floating text, zones, and telegraphs.
+- Replaced hot-path visual allocations with pooled reset paths.
+- Replaced hot visual-array cleanup filters with in-place compaction to reduce garbage-collection stalls.
+- Cached ball sprites to avoid recreating radial gradients during fighter rendering.
+- Reduced expensive shadows, fullscreen effects, portal density, grid detail, text effects, and death debris on lower quality levels.
+- Throttled HUD updates and avoided repeated cooldown DOM queries.
+- Avoided object-spread allocations when applying multiplayer snapshots.
+- Optimized FFA snapshot hydration by caching fighter lookup maps.
+- Reworked player trail cleanup to avoid per-frame filter allocations.
+
+### Effects, abilities, and long-session stability
+
+- Scaled particle/debris bursts by quality and adaptive performance level while preserving gameplay behavior.
+- Added caps for particles, projectiles, hitboxes, beams, zones, and other transient effects.
+- Replaced delayed ability/super timers with match-owned timers that are cleared on rematch, return-to-lobby, leave, and new game.
+- Reduced Warp portal visual density on low quality and reduced portal ultimate visual load without changing server authority.
+- Reduced Magician fullscreen/rune visual load on low/adaptive settings.
+- Reduced AI/System Override visual density on low/adaptive settings.
+
+### Multiplayer and server performance
+
+- Encoded each room broadcast WebSocket frame once instead of once per connected recipient.
+- Reduced normal snapshot rate from 20 Hz to 18 Hz.
+- Reduced projectile/hitbox snapshot caps from 80 to 64.
+- Stopped sending arena metadata in every normal snapshot; it is sent on join/start/forced snapshots.
+- Rounded snapshot numeric fields where practical to reduce payload size.
+- Added change-aware/throttled client input sending to reduce bandwidth while keeping action inputs responsive.
+- Added a test-only `BCA_TEST_SHORT_MATCH=1` server flag for faster automated lifecycle/rematch tests; production defaults are unchanged.
+
+### Performance report
+
+- Added `PERFORMANCE_REPORT.md` with before/after source metrics, network stress sample, implementation notes, and browser-FPS measurement limits.
+- Static hot-path proxy comparison from the previous ZIP to this ZIP:
+  - visual constructor call sites for Particle/Projectile/Ring/FloatText/Beam/Hitbox: reduced to zero direct hot-path `new` calls.
+  - client `.filter()` call sites: reduced from 38 to 6.
+  - raw gameplay `setTimeout()` sequences: reduced from 41 to one tracked helper.
+  - cooldown `querySelector('.coolFill')`: removed from update path.
+
+### Validation
+
+- Verified `npm install --ignore-scripts --no-audit --no-fund`.
+- Verified `node --check server.js`.
+- Verified extracted client JavaScript syntax with `node --check`.
+- Verified `npm run check:all`.
+- Verified local server startup and `/health`.
+- Verified WebSocket create-room, join-room, 1v1 start, FFA start, long-session stress, particle/projectile/portal/ultimate stress paths, rematch waiting, rematch acceptance, return-to-lobby, leave cleanup, and disconnect cleanup.
+- Headless Chromium visual profiling was attempted but timed out in the sandbox; the in-game profiler is included for real hardware FPS validation.
+
 ## Multiplayer release-readiness update
 
 ### Server-authoritative multiplayer
