@@ -45,6 +45,7 @@ const PHASES = Object.freeze({
   RETURNING_TO_LOBBY: 'returning_to_lobby',
   CLOSED: 'closed'
 });
+const GAME_INPUT_PHASES = new Set([PHASES.COUNTDOWN, PHASES.PLAYING]);
 
 const ARENA = Object.freeze({ width: 1920, height: 1080, x: 120, y: 120, w: 1680, h: 840, floor: 960 });
 
@@ -361,10 +362,13 @@ function leaveRoom(client, opts = {}) {
   }
   broadcastState(room);
 }
-function markDisconnected(client) {
+function markDisconnected(client, sock = null) {
   const room = client && client.room ? rooms.get(client.room) : null;
   if (!room) return;
   const player = room.players.get(client.id);
+  // If this close/error belongs to an old socket that was replaced by reconnect,
+  // do not mark the new live room player disconnected.
+  if (sock && player && player.sock && player.sock !== sock) return;
   if (!player || player.left) return;
   player.connected = false;
   player.sock = null;
@@ -483,12 +487,11 @@ function validateInput(raw, previous) {
 }
 function receiveInput(client, msg) {
   const room = client.room ? rooms.get(client.room) : null;
-  if (!room || room.phase !== PHASES.PLAYING || !room.match) return;
+  if (!room || !room.match || !GAME_INPUT_PHASES.has(room.phase)) return;
 
-  // Authoritative simulation reads input from the room player record. A previous
-  // performance/refactor pass updated only the transient socket object in some
-  // paths, leaving room.players[id].input as emptyInput(); that made guests look
-  // frozen and made abilities appear inactive. Keep both records synchronized.
+  // Authoritative simulation reads input from the room player record, not from
+  // a short-lived socket wrapper. Keep both records synchronized and accept
+  // countdown inputs so held movement/actions are already available on frame 1.
   const player = room.players.get(client.id);
   if (!player || player.left || !player.connected) return;
 
@@ -622,7 +625,13 @@ function tickRoom(room, dt) {
   if (room.phase === PHASES.RETURNING_TO_LOBBY && room.returningEndsAt && t >= room.returningEndsAt) finishReturnToLobby(room);
   if (!room.match) return;
   if (room.phase === PHASES.COUNTDOWN) {
-    if (t >= room.countdownEndsAt) { setPhase(room, PHASES.PLAYING); broadcast(room, { type: 'phase', phase: PHASES.PLAYING }); broadcastState(room); }
+    if (t >= room.countdownEndsAt) {
+      setPhase(room, PHASES.PLAYING);
+      broadcast(room, { type: 'phase', phase: PHASES.PLAYING });
+      broadcastState(room);
+      broadcastSnapshot(room, true);
+      return;
+    }
     broadcastSnapshot(room);
     return;
   }
@@ -935,8 +944,8 @@ server.on('upgrade', (req, sock) => {
       handleClientMessage(client, msg);
     }
   });
-  sock.on('close', () => { client.connected = false; clients.delete(client); markDisconnected(client); });
-  sock.on('error', () => { client.connected = false; clients.delete(client); markDisconnected(client); });
+  sock.on('close', () => { client.connected = false; clients.delete(client); markDisconnected(client, sock); });
+  sock.on('error', () => { client.connected = false; clients.delete(client); markDisconnected(client, sock); });
 });
 
 setInterval(() => {

@@ -1694,7 +1694,7 @@ class Game{
     const online=!!this.opts.onlineMatch;
     const localTarget = online ? ((this.cpu.netId===net.id)?this.cpu:this.player) : this.player;
     const localInput = readLocalInput(this, localTarget);
-    if(net.ws && net.room && online){ sendOnlineInput(localInput); }
+    if(net.ws && net.room && online){ if(sendOnlineInput(localInput, net.forceInput)) net.forceInput=false; }
     if(online){
       // Multiplayer simulation is server-authoritative. Every client, including host,
       // only sends inputs and renders validated snapshots from the server.
@@ -1831,7 +1831,7 @@ class FFAGame{
     const dt=rawDt*(this.slowMo>0?.34:1)*this.pace; this.slowMo=Math.max(0,this.slowMo-rawDt); this.impactFrame=Math.max(0,this.impactFrame-rawDt); if(this.state==='dying'){ this.updateArrays(dt); updateDeathSequence(this,rawDt); this.updateUI(); return; } this.time-=rawDt;
     if(this.time<=0){this.finishByHP('Time up');return;}
     this.realityTimer=Math.max(0,this.realityTimer-dt); if(this.timeStop){this.timeStop.life-=dt;if(this.timeStop.life<=0) releaseTimeKnives(this);}
-    const localInput=readLocalInput(this,this.player); if(net.ws&&net.room&&this.opts.onlineMatch){ sendOnlineInput(localInput); }
+    const localInput=readLocalInput(this,this.player); if(net.ws&&net.room&&this.opts.onlineMatch){ if(sendOnlineInput(localInput, net.forceInput)) net.forceInput=false; }
     if(this.opts.onlineMatch){
       // Server-authoritative FFA: clients render snapshots only.
       this.updateArrays(dt);
@@ -2012,14 +2012,17 @@ function readLocalInput(g,p){
 function readPlayerInput(g){return readLocalInput(g,g.player);}
 function packInput(i){const out={move:i.move,jump:!!i.jump,attack:!!i.attack,parry:!!i.parry,a1:!!i.a1,a2:!!i.a2,super:!!i.super,aim:i.aim}; if(Number.isFinite(i.seq))out.seq=i.seq; return out;}
 function inputSignature(i){return [Math.round((i.move||0)*10),i.jump?1:0,i.attack?1:0,i.parry?1:0,i.a1?1:0,i.a2?1:0,i.super?1:0,Math.round((i.aim||0)*100)].join('|');}
-function sendOnlineInput(localInput){
-  if(!net.ws||net.ws.readyState!==1||!net.room)return;
+function sendOnlineInput(localInput, force=false){
+  if(!net.ws||net.ws.readyState!==1||!net.room)return false;
   const now=performance.now(), sig=inputSignature(localInput), action=localInput.attack||localInput.parry||localInput.a1||localInput.a2||localInput.super||localInput.jump;
   const interval=action?28:34;
-  if(sig===PERF.lastInputSig && now-PERF.lastInputSent<90 && !action) return;
-  if(now-PERF.lastInputSent<interval) return;
+  if(!force){
+    if(sig===PERF.lastInputSig && now-PERF.lastInputSent<90 && !action) return false;
+    if(now-PERF.lastInputSent<interval) return false;
+  }
   PERF.lastInputSig=sig; PERF.lastInputSent=now; net.inputSeq=(net.inputSeq||0)+1;
   net.send({type:'input',input:packInput({...localInput,seq:net.inputSeq})});
+  return true;
 }
 function zeroInputFor(f){return {move:0,jump:false,attack:false,parry:false,a1:false,a2:false,super:false,aim:(f&&Number.isFinite(f.aim))?f.aim:0};}
 function getFighters(g){
@@ -2993,7 +2996,7 @@ function exitToMainMenu(){
 
 // Online rooms. The server owns room state, match phases, HP, cooldowns, hits, winners, rematches, and reconnect windows.
 const net={
-  ws:null,room:'',mode:'duel',role:null,id:null,reconnectToken:null,phase:'lobby',remoteInput:null,remoteInputs:{},ready:false,char:'stasis',players:[],ping:0,pingTimer:null,lastPingSent:0,inputSeq:0,
+  ws:null,room:'',mode:'duel',role:null,id:null,reconnectToken:null,phase:'lobby',remoteInput:null,remoteInputs:{},ready:false,char:'stasis',players:[],ping:0,pingTimer:null,lastPingSent:0,inputSeq:0,forceInput:false,
   send(o){if(this.ws&&this.ws.readyState===1)this.ws.send(JSON.stringify({...o,protocol:PROTOCOL_VERSION,room:this.room,mode:this.mode}));}
 };
 function phaseLabel(phase){
@@ -3016,7 +3019,7 @@ function clearSession(){try{localStorage.removeItem('bcaSession');}catch(_){}}
 function closeOnlineSocket(sendLeave=true){
   if(net.ws){ try{if(sendLeave)net.send({type:'leave'}); net.ws.close();}catch(_){ } }
   if(net.pingTimer){clearInterval(net.pingTimer); net.pingTimer=null;}
-  net.ws=null; net.role=null; net.id=null; net.reconnectToken=null; net.ready=false; net.players=[]; net.remoteInput=null; net.remoteInputs={}; net.phase='lobby'; net.inputSeq=0; updatePingUI();
+  net.ws=null; net.role=null; net.id=null; net.reconnectToken=null; net.ready=false; net.players=[]; net.remoteInput=null; net.remoteInputs={}; net.phase='lobby'; net.inputSeq=0; net.forceInput=false; updatePingUI();
 }
 function enterLobby(room){
   if(ui.lobbyRoomCode) ui.lobbyRoomCode.textContent=room;
@@ -3053,7 +3056,7 @@ function startOnlineMatch(msg){
   net.mode = msg.mode || net.mode || 'duel';
   net.role = msg.role || net.role || 'player';
   net.phase = msg.phase || 'countdown';
-  net.remoteInput = null; net.remoteInputs = {}; net.inputSeq = 0; PERF.lastInputSig = ''; PERF.lastInputSent = 0;
+  net.remoteInput = null; net.remoteInputs = {}; net.inputSeq = 0; net.forceInput = true; PERF.lastInputSig = ''; PERF.lastInputSent = 0;
   resize(); {const c=worldCenter(); pointer.x=c.x; pointer.y=c.y;} if(game)clearGameTimers(game); game = null;
   if(net.mode === 'ffa'){
     const players = (msg.players && msg.players.length ? msg.players : net.players).filter(p=>p&&p.id);
@@ -3068,7 +3071,9 @@ function startOnlineMatch(msg){
   try{ game.draw(); }catch(e){ console.error('Initial online draw failed', e); }
 }
 function applyOnlineSnapshot(m){
+  const previousPhase = net.phase;
   net.phase=m.phase||net.phase;
+  if(previousPhase!==net.phase && net.phase==='playing') net.forceInput = true;
   if(m.arena){arena.x=m.arena.x; arena.y=m.arena.y; arena.w=m.arena.w; arena.h=m.arena.h; arena.floor=m.arena.floor;}
   if(game){
     if(m.mode==='ffa' && !m.fighters) m.fighters=[];
@@ -3116,7 +3121,7 @@ function connectOnline(mode){
     if(m.type==='round_over') { if(m.snapshot) applyOnlineSnapshot(m.snapshot); setOnlineStatus('Round over. Rematch, return to lobby, or leave.'); }
     if(m.type==='rematch_wait'){ const mine=(m.accepted||[]).includes(net.id); const needed=(m.needed||[]).length, accepted=(m.accepted||[]).length; setOnlineStatus(mine?`Waiting for opponent rematch... ${accepted}/${needed}`:`Opponent wants a rematch. ${accepted}/${needed}`); if(ui.resultText&&game&&game.opts&&game.opts.onlineMatch) ui.resultText.textContent = mine ? 'Waiting for opponent to accept rematch.' : 'Opponent requested a rematch.'; }
     if(m.type==='returning_to_lobby'){setOnlineStatus(m.reason||'Returning to lobby...'); if(game)clearGameTimers(game); game=null; showScreen('online'); enterLobby(net.room);}
-    if(m.type==='phase'){net.phase=m.phase||net.phase; if(ui.stateTxt)ui.stateTxt.textContent=phaseLabel(net.phase);}
+    if(m.type==='phase'){const oldPhase=net.phase; net.phase=m.phase||net.phase; if(oldPhase!==net.phase && net.phase==='playing') net.forceInput=true; if(ui.stateTxt)ui.stateTxt.textContent=phaseLabel(net.phase);}
     if(m.type==='pong'){net.ping=Math.max(1,performance.now()-(net.lastPingSent||performance.now())); updatePingUI();}
     if(m.type==='full'){setOnlineStatus('Room full. Try another room code.');}
     if(m.type==='peer_left'){setOnlineStatus((m.name||'Opponent')+' left the room.');}
