@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1 - Menu startup hotfix
+
+- Fixed a performance-pass startup regression where the initial canvas resize accessed graphics-quality settings before they were initialized.
+- Restored main-menu, single-player, settings, tutorial, credits, and multiplayer button handlers.
+- Kept the performance pooling/adaptive-quality changes from 1.3.0 intact.
+
+
 ## Performance and scalability release update
 
 ### Client frame pacing and rendering

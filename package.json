@@ -1,6 +1,6 @@
 {
   "name": "ball-clash-arena",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "private": true,
   "description": "Ball Clash Arena public-test HTML5 arena fighter with server-authoritative WebSocket multiplayer and release-grade performance controls.",
   "main": "server.js",

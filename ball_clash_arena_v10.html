@@ -610,7 +610,14 @@ let DPR = 1;
 let viewScale = 1, viewX = 0, viewY = 0;
 
 function resize(){
-  const maxDpr = profile ? profile().dpr : 1.6;
+  // resize() runs once during early bootstrap before the performance settings
+  // constants are initialized. Keep this path TDZ-safe so the main menu can
+  // always finish attaching button handlers. Later settings changes call the
+  // same function again with the real quality profile.
+  let maxDpr = 1.6;
+  let qualityName = 'high';
+  try{ maxDpr = (profile().dpr || maxDpr); }catch(_){}
+  try{ qualityName = (SETTINGS && SETTINGS.quality) || qualityName; }catch(_){}
   DPR = Math.min(maxDpr, window.devicePixelRatio || 1);
   const w = Math.max(1, Math.floor(innerWidth * DPR)), h = Math.max(1, Math.floor(innerHeight * DPR));
   if(canvas.width !== w) canvas.width = w;
@@ -621,10 +628,10 @@ function resize(){
   viewX = (innerWidth - LOGICAL_WIDTH * viewScale) * .5;
   viewY = (innerHeight - LOGICAL_HEIGHT * viewScale) * .5;
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  ctx.imageSmoothingEnabled = (SETTINGS.quality||'high') !== 'low';
+  ctx.imageSmoothingEnabled = qualityName !== 'low';
   // Gameplay uses one canonical 1920x1080 coordinate space. Viewport size only changes render scale.
   arena.x = 120; arena.y = 120; arena.w = 1680; arena.h = 840; arena.floor = 960;
-  PERF.lastResize = performance.now();
+  try{ PERF.lastResize = performance.now(); }catch(_){}
 }
 function scheduleResize(){ if(scheduleResize._raf) cancelAnimationFrame(scheduleResize._raf); scheduleResize._raf=requestAnimationFrame(()=>{scheduleResize._raf=0;resize();}); }
 function screenToWorld(x,y){return {x:(x-viewX)/viewScale,y:(y-viewY)/viewScale};}
