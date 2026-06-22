@@ -127,6 +127,8 @@ Clients send only input snapshots such as movement, jump, aim, attack, parry, Q/
 
 ## Performance features
 
+Impact frames now use color shock glow, radial hit bursts, speed rays, and expanding rings instead of only plain white flashes. Lower quality settings automatically reduce ray density while keeping the hit readable.
+
 ### Graphics quality
 
 Settings include four quality levels:
@@ -182,6 +184,11 @@ Viewport scaling targets reviewed in static/responsive logic and intended for ma
 - 1366×768 laptop
 - 2560×1080 ultrawide
 - narrow/mobile-style viewport
+
+### HUD-safe gameplay viewport
+
+The canvas now reserves dynamic safe space for the top HUD and bottom hint before fitting the 1920x1080 game world. Health bars, timer panels, and controls should no longer cover the top edge of the arena on desktop/laptop aspect ratios. The arena, grid, impacts, fullscreen effects, and pointer conversion all use the same letterboxed camera, so visual effects line up with gameplay positions.
+
 
 ## Multiplayer flow
 

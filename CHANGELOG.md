@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.2 - Arena viewport and impact-visual hotfix
+
+- Fixed gameplay camera/letterboxing so the canonical arena is rendered below the top HUD instead of being covered by health bars.
+- Reworked canvas resize math to reserve dynamic safe space for HUD and bottom hints while keeping physics in the same 1920x1080 canonical coordinate space.
+- Aligned grid, arena background, fullscreen screen effects, time-stop overlay, and impact frames to canonical world coordinates instead of raw browser pixels.
+- Improved impact frames from plain white/difference flashes into focused hit effects with color shock glow, radial burst, speed rays, and expanding rings.
+- Added resize scheduling when entering/leaving gameplay screens so HUD visibility changes immediately update the gameplay camera.
+- Kept the server-authoritative multiplayer and performance-pooling changes intact.
+
 ## 1.3.1 - Menu startup hotfix
 
 - Fixed a performance-pass startup regression where the initial canvas resize accessed graphics-quality settings before they were initialized.
