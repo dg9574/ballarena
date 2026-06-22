@@ -185,9 +185,11 @@ Viewport scaling targets reviewed in static/responsive logic and intended for ma
 - 2560×1080 ultrawide
 - narrow/mobile-style viewport
 
-### HUD-safe gameplay viewport
+### HUD-safe enlarged gameplay viewport
 
-The canvas now reserves dynamic safe space for the top HUD and bottom hint before fitting the 1920x1080 game world. Health bars, timer panels, and controls should no longer cover the top edge of the arena on desktop/laptop aspect ratios. The arena, grid, impacts, fullscreen effects, and pointer conversion all use the same letterboxed camera, so visual effects line up with gameplay positions.
+The canvas reserves dynamic safe space for the top HUD and bottom hint, then fits the camera around the playable arena plus a small world margin instead of shrinking the entire 1920x1080 logical canvas into the remaining area. Health bars, timer panels, and controls should not cover the arena, while fighters, projectiles, portals, grid lines, and impact effects are larger and easier to read on laptop/desktop screens.
+
+Gameplay physics still uses the same canonical 1920x1080 coordinate space and arena rectangle. The change is presentation-only: pointer conversion, grid drawing, impacts, fullscreen effects, and multiplayer snapshots all share the same camera transform, so input and visuals stay aligned.
 
 
 ## Multiplayer flow

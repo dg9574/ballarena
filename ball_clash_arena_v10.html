@@ -206,31 +206,31 @@
 
   /* HUD */
   #hud{position:fixed;inset:0;pointer-events:none;z-index:8;}
-  .hudTop{position:absolute;top:12px;left:12px;right:12px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:start;}
-  .fighterHUD{border:1px solid rgba(219,239,255,.22);background:linear-gradient(180deg,rgba(4,8,20,.82),rgba(5,11,25,.70));border-radius:18px;padding:11px;box-shadow:0 0 26px rgba(0,0,0,.40),0 0 0 1px rgba(255,255,255,.035) inset;min-width:0;}
+  .hudTop{position:absolute;top:6px;left:10px;right:10px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:9px;align-items:start;}
+  .fighterHUD{border:1px solid rgba(219,239,255,.22);background:linear-gradient(180deg,rgba(4,8,20,.82),rgba(5,11,25,.70));border-radius:16px;padding:8px 10px;box-shadow:0 0 24px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.035) inset;min-width:0;}
   .fighterHUD.cpu{text-align:right;}
-  .nameLine{font-size:13px;font-weight:1000;letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;color:#f8fbff;text-shadow:0 2px 5px #000;}
+  .nameLine{font-size:12.5px;font-weight:1000;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between;gap:10px;color:#f8fbff;text-shadow:0 2px 5px #000;}
   .nameLine span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cpu .nameLine{flex-direction:row-reverse;}
   .hpOuter,.superOuter{border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:inset 0 0 0 1px rgba(0,0,0,.38);}
-  .hpOuter{height:24px;background:linear-gradient(90deg,rgba(110,12,30,.80),rgba(58,8,20,.82));position:relative;}
+  .hpOuter{height:21px;background:linear-gradient(90deg,rgba(110,12,30,.80),rgba(58,8,20,.82));position:relative;}
   .hpOuter::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 2px 0 rgba(255,255,255,.13),inset 0 -2px 0 rgba(0,0,0,.28);pointer-events:none;}
   .hpInner{height:100%;width:100%;background:linear-gradient(90deg,#30ff84,#a8ff68);transition:width .12s linear,background .12s linear;box-shadow:0 0 18px rgba(90,255,150,.50);border-right:2px solid rgba(255,255,255,.92);}
-  .superOuter{height:10px;margin-top:7px;background:rgba(0,0,0,.35);}
+  .superOuter{height:8px;margin-top:5px;background:rgba(0,0,0,.35);}
   .superInner{height:100%;width:0%;background:linear-gradient(90deg,#78dbff,#d98aff,#fff06b);box-shadow:0 0 14px rgba(160,120,255,.65);}
-  .cooldowns{display:flex;gap:6px;margin-top:8px;justify-content:flex-start;}
+  .cooldowns{display:flex;gap:6px;margin-top:6px;justify-content:flex-start;}
   .cpu .cooldowns{justify-content:flex-end;}
-  .coolBox{width:40px;height:26px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.27);position:relative;overflow:hidden;font-size:10px;color:#e8f3ff;display:flex;align-items:center;justify-content:center;font-weight:1000;}
+  .coolBox{width:36px;height:23px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.27);position:relative;overflow:hidden;font-size:9.5px;color:#e8f3ff;display:flex;align-items:center;justify-content:center;font-weight:1000;}
   .coolFill{position:absolute;left:0;right:0;bottom:0;height:0%;background:rgba(115,247,255,.38);}
   .coolBox span{z-index:1;text-shadow:0 1px 3px #000;}
-  .timerBox{min-width:124px;text-align:center;border:1px solid rgba(115,247,255,.28);background:linear-gradient(180deg,rgba(4,8,20,.80),rgba(4,8,20,.62));border-radius:18px;padding:10px 12px;font-weight:1000;letter-spacing:.08em;box-shadow:0 0 24px rgba(115,247,255,.14);}
-  #timer{font-size:24px;line-height:1;color:#fff;}
-  .hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);color:#d2e2ff;background:rgba(0,0,0,.34);padding:8px 13px;border:1px solid rgba(255,255,255,.11);border-radius:999px;font-size:12px;text-align:center;max-width:92vw;}
-  .pauseBtn{pointer-events:auto;position:absolute;right:14px;top:96px;padding:10px 13px;border-radius:13px;font-size:13px;min-height:40px;}
+  .timerBox{min-width:108px;text-align:center;border:1px solid rgba(115,247,255,.28);background:linear-gradient(180deg,rgba(4,8,20,.80),rgba(4,8,20,.62));border-radius:16px;padding:8px 10px;font-weight:1000;letter-spacing:.08em;box-shadow:0 0 22px rgba(115,247,255,.14);}
+  #timer{font-size:22px;line-height:1;color:#fff;}
+  .hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);color:#d2e2ff;background:rgba(0,0,0,.34);padding:7px 12px;border:1px solid rgba(255,255,255,.11);border-radius:999px;font-size:12px;text-align:center;max-width:92vw;}
+  .pauseBtn{pointer-events:auto;position:absolute;right:14px;top:84px;padding:10px 13px;border-radius:13px;font-size:13px;min-height:40px;}
   .localPauseOverlay{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.36);backdrop-filter:blur(6px);pointer-events:auto;}
   .localPauseCard{width:min(420px,calc(100vw - 28px));border-radius:24px;border:1px solid rgba(255,255,255,.16);background:linear-gradient(180deg,rgba(16,25,52,.94),rgba(5,7,18,.94));box-shadow:0 22px 70px rgba(0,0,0,.55);padding:20px;}
   .localPauseCard h3{margin:0 0 8px;font-size:26px}.localPauseCard .pauseActions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}.localPauseCard button{width:100%;}
-  #leaveGameBtn{top:144px!important;}
+  #leaveGameBtn{top:132px!important;}
   #mobileControls{position:fixed;inset:0;z-index:7;pointer-events:none;display:none;}
   .touchStick,.aimPad{pointer-events:auto;position:absolute;bottom:28px;width:132px;height:132px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);box-shadow:0 0 26px rgba(115,247,255,.12);}
   .touchStick{left:18px;}.aimPad{right:18px;background:rgba(255,255,255,.045);}
@@ -620,14 +620,14 @@ function gameplaySafeInsets(){
       const topBar = ui.hud.querySelector('.hudTop');
       if(topBar){
         const r = topBar.getBoundingClientRect();
-        top = Math.max(top, Math.ceil(r.bottom + 14));
+        top = Math.max(top, Math.ceil(r.bottom + 8));
       }
       const hint = ui.hud.querySelector('.hint');
       if(hint && getComputedStyle(hint).display !== 'none'){
         const r = hint.getBoundingClientRect();
-        bottom = Math.max(bottom, Math.ceil(innerHeight - r.top + 8));
+        bottom = Math.max(bottom, Math.ceil(innerHeight - r.top + 5));
       }else{
-        bottom = Math.max(bottom, 12);
+        bottom = Math.max(bottom, 8);
       }
     }
   }catch(_){}
@@ -650,16 +650,24 @@ function resize(){
   if(canvas.height !== h) canvas.height = h;
   canvas.style.width = innerWidth + 'px';
   canvas.style.height = innerHeight + 'px';
+  // Gameplay uses one canonical 1920x1080 coordinate space. Viewport size only changes render scale.
+  arena.x = 120; arena.y = 120; arena.w = 1680; arena.h = 840; arena.floor = 960;
   const safe = gameplaySafeInsets();
   viewSafeTop = safe.top; viewSafeBottom = safe.bottom;
   const usableH = Math.max(260, innerHeight - viewSafeTop - viewSafeBottom);
-  viewScale = Math.min(innerWidth / LOGICAL_WIDTH, usableH / LOGICAL_HEIGHT) || 1;
-  viewX = Math.round((innerWidth - LOGICAL_WIDTH * viewScale) * .5);
-  viewY = Math.round(viewSafeTop + (usableH - LOGICAL_HEIGHT * viewScale) * .5);
+  // Focus the camera on the playable arena plus a small world margin instead of
+  // fitting the full 1920x1080 logical canvas. This keeps the arena clear of the
+  // HUD while making fighters, projectiles, portals, and hit effects much easier
+  // to read on laptops and desktop monitors.
+  const padX = innerWidth < 820 ? 34 : 56;
+  const padY = innerHeight < 720 ? 26 : 44;
+  const focusX = arena.x - padX, focusY = arena.y - padY;
+  const focusW = arena.w + padX * 2, focusH = arena.h + padY * 2;
+  viewScale = Math.min(innerWidth / focusW, usableH / focusH) || 1;
+  viewX = Math.round((innerWidth - focusW * viewScale) * .5 - focusX * viewScale);
+  viewY = Math.round(viewSafeTop + (usableH - focusH * viewScale) * .5 - focusY * viewScale);
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.imageSmoothingEnabled = qualityName !== 'low';
-  // Gameplay uses one canonical 1920x1080 coordinate space. Viewport size only changes render scale.
-  arena.x = 120; arena.y = 120; arena.w = 1680; arena.h = 840; arena.floor = 960;
   try{ PERF.lastResize = performance.now(); }catch(_){}
 }
 function scheduleResize(){ if(scheduleResize._raf) cancelAnimationFrame(scheduleResize._raf); scheduleResize._raf=requestAnimationFrame(()=>{scheduleResize._raf=0;resize();}); }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.3 - Arena readability and HUD compacting hotfix
+
+- Enlarged the gameplay camera by fitting the viewport around the playable arena plus a small world margin instead of fitting the entire 1920x1080 logical canvas.
+- Kept canonical multiplayer/single-player physics unchanged; only the render camera and screen-to-world pointer mapping changed.
+- Slightly compacted the top HUD, health bars, timer, cooldown boxes, and hint spacing so the arena can use more vertical screen space without being covered.
+- Preserved the HUD-safe layout from 1.3.2 while making fighters, projectiles, portals, grid lines, and hit effects easier to see.
+
 ## 1.3.2 - Arena viewport and impact-visual hotfix
 
 - Fixed gameplay camera/letterboxing so the canonical arena is rendered below the top HUD instead of being covered by health bars.
